@@ -1,0 +1,6 @@
+app_name = "erpnext_my_app"
+app_title = "ERPNext My App"
+app_publisher = "John Zeng"
+app_description = "Integrates custom features into ERPNext"
+app_email = "zeng.lxcy@gmail.com"
+app_license = "MIT"
