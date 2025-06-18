@@ -4,7 +4,7 @@ setup(
     name='erpnext_my_app',
     version='0.0.1',
     description='Simple Hello World API',
-    author='Your Name',
+    author='John Zeng',
     author_email='zeng.lxcy@gmail.com',
     packages=find_packages(),
     zip_safe=False,
