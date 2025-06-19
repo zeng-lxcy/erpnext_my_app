@@ -1,12 +1,10 @@
 import frappe
-import unittest
-from erpnext_my_app.api import export_delivery_notes_to_csv
+from frappe.tests.utils import FrappeTestCase
 
-class TestExportDeliveryNotesToCsv(unittest.TestCase):
-    def setUp(self):
+class TestExportDeliveryNotesToCsv(FrappeTestCase):
+    def test_export_delivery_notes_to_csv(self):
         frappe.set_user("Administrator")
 
-    def test_export_delivery_notes_to_csv(self):
         # 1. 创建客户
         customer = frappe.get_doc({
             "doctype": "Customer",
@@ -40,12 +38,12 @@ class TestExportDeliveryNotesToCsv(unittest.TestCase):
             }]
         }).insert()
 
-        # 4. 创建销售订单（带 Amazon 订单号字段）
+        # 4. 创建销售订单（确保字段 amazon_order_id 存在）
         sales_order = frappe.get_doc({
             "doctype": "Sales Order",
             "customer": customer.name,
-            "amazon_order_id": "AMZ123456789",  # 假设你有这个自定义字段
             "delivery_date": frappe.utils.nowdate(),
+            "amazon_order_id": "AMZ123456789",  # 确保有此字段
             "items": [{
                 "item_code": item.item_code,
                 "qty": 1,
@@ -66,15 +64,13 @@ class TestExportDeliveryNotesToCsv(unittest.TestCase):
             "shipping_address_name": address.name
         }).insert()
 
-        # 6. 调用你的导出 API
-        result = export_delivery_notes_to_csv(delivery_note.name)
+        # 6. 调用 API（因为是 whitelist 的函数）
+        result = frappe.call("erpnext_my_app.api.export_delivery_notes_to_csv", delivery_note.name)
 
         # 7. 验证导出结果
         self.assertIn("file_url", result["message"])
-        print("CSV 文件 URL:", result["message"]["file_url"])
-
-        # ✅ 测试成功：已生成文件并包含 file_url
+        print("✅ CSV 文件已生成：", result["message"]["file_url"])
 
     def tearDown(self):
-        # 可选：测试后清理数据库
+        # 回滚所有更改
         frappe.db.rollback()
