@@ -4,7 +4,15 @@ from frappe.tests.utils import FrappeTestCase
 class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
-        
+
+        # 确保公司存在
+        if not frappe.db.exists("Company", "Test Company"):
+            frappe.get_doc({
+                "doctype": "Company",
+                "company_name": "Test Company",
+                "abbr": "TC"
+            }).insert()
+
         # 确保默认地址模板存在
         if not frappe.db.exists("Address Template", "Default Template"):
             frappe.get_doc({
@@ -93,6 +101,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
         sales_order = frappe.get_doc({
             "doctype": "Sales Order",
             "customer": customer.name,
+            "company": "Test Company",
             "delivery_date": frappe.utils.nowdate(),
             "amazon_order_id": "AMZ123456789",
             "items": [{
