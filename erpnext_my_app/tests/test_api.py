@@ -26,14 +26,14 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
 
 
         # 确保默认地址模板存在
-        if not frappe.db.exists("Address Template", "Default Template"):
+        if not frappe.db.exists("Address Template", "China"):
             frappe.get_doc({
                 "doctype": "Address Template",
-                "address_template_name": "Default Template",
-                "template": "{{ address_line1 }}\n{{ city }}\n{{ country }}",
+                "country": "China",
                 "is_default": 1,
-                "country": "China"  # 试试加上这个字段，部分版本需要
+                "name": "China"  # Address Template 的主键是 name，通常等于 country
             }).insert()
+
 
         # 顶层 Customer Group
         if not frappe.db.exists("Customer Group", "All Customer Groups"):
