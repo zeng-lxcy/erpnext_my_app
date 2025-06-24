@@ -57,5 +57,5 @@ def export_delivery_notes_to_csv(delivery_note_ids):
     file_content = output.getvalue()
     output.close()
 
-    file_doc = save_file(filename, file_content, "File", "", is_private=0)
+    file_doc = save_file(filename, file_content, attached_to_doctype=None, attached_to_name=None, is_private=0)
     return { "message" : {"file_url" : file_doc.file_url}}
