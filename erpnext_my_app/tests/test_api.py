@@ -5,16 +5,6 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
 
-        # 设置汇率（如果客户币种 ≠ 公司币种）
-        if not frappe.db.exists("Currency Exchange", {"from_currency": "CNY", "to_currency": "CNY"}):
-            frappe.get_doc({
-                "doctype": "Currency Exchange",
-                "from_currency": "CNY",
-                "to_currency": "CNY",
-                "exchange_rate": 1.0,
-                "date": frappe.utils.nowdate()
-            }).insert()
-
         # 创建价格表
         if not frappe.db.exists("Price List", "Standard Selling"):
             frappe.get_doc({
