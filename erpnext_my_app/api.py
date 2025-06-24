@@ -47,7 +47,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
             AND a.is_shipping_address = 1
             ORDER BY a.creation DESC
             LIMIT 1
-        """, (company.name,), as_dict=True)
+        """, (company.get_formatted("company_name"),), as_dict=True)
         if address_name:
             print(address_name[0].name)
             shipping_address_s = frappe.get_doc("Address", address_name[0].name)
