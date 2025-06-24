@@ -4,6 +4,16 @@ from frappe.tests.utils import FrappeTestCase
 class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
+        
+        # 确保默认地址模板存在
+        if not frappe.db.exists("Address Template", "Default Template"):
+            doc = frappe.get_doc({
+                "doctype": "Address Template",
+                "address_template_name": "Default Template",
+                "template": "{{ address_line1 }}\n{{ city }}\n{{ country }}",  # 简单示例
+                "is_default": 1
+            })
+            doc.insert()
 
         # 顶层 Customer Group
         if not frappe.db.exists("Customer Group", "All Customer Groups"):
