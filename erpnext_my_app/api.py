@@ -21,8 +21,12 @@ def export_delivery_notes_to_csv(delivery_note_ids):
     output = StringIO()
     writer = csv.writer(output)
     writer.writerow([
-        "客户名称", "客户电话", "发货地址", 
-        "商品名称", "商品数量", "亚马逊订单号"
+        "亚马逊订单号",
+        "客户名称", "客户电话",
+        "收货地址明细", "收货城市", "收货省份",
+        "商品名称", "商品数量",
+        "发货名称", "发货电话",
+        "发货地址明细", "发货城市", "发货省份"
     ])
 
     for dn_id in delivery_note_ids:
@@ -32,24 +36,34 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
         shipping_address_name = dn.shipping_address_name
         shipping_address = frappe.get_doc("Address", shipping_address_name)
-        shipping_address_str = shipping_address.get_formatted("address_line1") + ", " + \
-                              shipping_address.get_formatted("city") + ", " + \
-                              shipping_address.get_formatted("country")
+        company = frappe.get_doc("Company", dn.company)
 
 
         amazon_order_id = ""
         if dn.items and dn.items[0].against_sales_order:
             sales_order = frappe.get_doc("Sales Order", dn.items[0].against_sales_order)
-            amazon_order_id = sales_order.get("amazon_order_id", "")  # 请替换为你实际存储 Amazon Order ID 的字段
+            amazon_order_id = sales_order.get("amazon_order_id", "amazon_order_id")
 
         for item in dn.items:
             writer.writerow([
+                amazon_order_id,
                 customer_name,
                 customer_phone,
-                shipping_address_str,
+                shipping_address.get_formatted("address_line1"),
+                shipping_address.get_formatted("city"),
+                shipping_address.get_formatted("state"),
                 item.item_name,
                 item.qty,
-                amazon_order_id
+                dn.get_formatted("delivery_note_name"),
+                dn.get_formatted("contact_mobile"),
+                shipping_address.get_formatted("address_line1"),
+                shipping_address.get_formatted("city"),
+                shipping_address.get_formatted("state"),
+                company.get_formatted("company_name"),
+                company.get_formatted("phone"),
+                company.get_formatted("address_line1"),
+                company.get_formatted("city"),
+                company.get_formatted("state")
             ])
 
     # 保存为 Frappe 文件
