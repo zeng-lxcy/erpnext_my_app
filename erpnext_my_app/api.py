@@ -40,7 +40,6 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         address_name = frappe.get_all("Address",
             filters={
                 "links.link_doctype": "Company",
-                "links.address_type": "Shipping",
                 "links.link_name": company.name
             },
             fields=["name"],
