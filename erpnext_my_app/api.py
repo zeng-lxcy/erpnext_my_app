@@ -38,7 +38,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         shipping_address = frappe.get_doc("Address", shipping_address_name)
         company = frappe.get_doc("Company", dn.company)
 
-        for field, value in dn:
+        for field, value in dn.items():
             print(f"{field}: {value}")
 
         amazon_order_id = ""
