@@ -15,22 +15,6 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "currency": "CNY"
             }).insert()
 
-        # 创建销售订单时设置：
-        sales_order = frappe.get_doc({
-            "doctype": "Sales Order",
-            "customer": customer.name,
-            "transaction_date": frappe.utils.nowdate(),
-            "delivery_date": frappe.utils.add_days(frappe.utils.nowdate(), 7),
-            "selling_price_list": "Standard Selling",
-            "price_list_currency": "CNY",
-            "plc_conversion_rate": 1.0,
-            "items": [{
-                "item_code": item.name,
-                "qty": 1,
-                "rate": 100
-            }]
-        }).insert()
-
         # 确保汇率存在
         if not frappe.db.exists("Currency Exchange", {"from_currency": "INR", "to_currency": "CNY"}):
             frappe.get_doc({
