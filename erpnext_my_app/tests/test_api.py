@@ -145,6 +145,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "schedule_date": frappe.utils.nowdate()
             }]
         }).insert()
+        sales_order_item_name = sales_order.items[0].name
 
         # 5. 创建发货单
         delivery_note = frappe.get_doc({
@@ -155,7 +156,8 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             "items": [{
                 "item_code": item.item_code,
                 "qty": 1,
-                "against_sales_order": sales_order.name
+                "against_sales_order": sales_order.name,
+                "against_sales_order_item": sales_order_item_name
             }],
             "shipping_address_name": address.name
         }).insert()
