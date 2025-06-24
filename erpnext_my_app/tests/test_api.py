@@ -43,7 +43,22 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "default_currency": "CNY",  # 必填，按你需要修改
                 "country": "China"          # 必填，按你需要修改
             }).insert()
-
+            # 创建地址并关联到公司
+            frappe.get_doc({
+                "doctype": "Address",
+                "address_title": "Test Company",
+                "address_type": "Shipping",
+                "address_line1": "123 测试路",
+                "address_line2": "测试楼 5F",
+                "city": "上海",
+                "state": "上海市",
+                "pincode": "200000",
+                "country": "China",
+                "links": [{
+                    "link_doctype": "Company",
+                    "link_name": "Test Company"
+                }]
+            }).insert()
 
         # 确保默认地址模板存在
         if not frappe.db.exists("Address Template", "China"):
