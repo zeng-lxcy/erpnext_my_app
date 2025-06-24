@@ -5,6 +5,14 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
 
+        # 确保默认仓库类型存在
+        for wt in ["Transit", "Stores", "Raw Material", "Finished Goods", "Scrap"]:
+            if not frappe.db.exists("Warehouse Type", wt):
+                frappe.get_doc({
+                    "doctype": "Warehouse Type",
+                    "warehouse_type_name": wt
+                }).insert()
+
         # 确保公司存在
         if not frappe.db.exists("Company", "Test Company"):
             frappe.get_doc({
