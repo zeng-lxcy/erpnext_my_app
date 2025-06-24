@@ -37,14 +37,17 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         shipping_address_name = dn.shipping_address_name
         shipping_address = frappe.get_doc("Address", shipping_address_name)
         company = frappe.get_doc("Company", dn.company)
-        address_name = frappe.get_all("Address",
-            filters={
-                "links.link_doctype": "Company",
-                "links.link_name": company.name
-            },
-            fields=["name"],
-            limit=1
-        )
+
+        address_name = frappe.db.sql("""
+            SELECT a.name, a.address_line1, a.city, a.state, a.pincode, a.country
+            FROM `tabAddress` a
+            JOIN `tabDynamic Link` dl ON dl.parent = a.name
+            WHERE dl.link_doctype = 'Company'
+            AND dl.link_name = %s
+            AND a.is_shipping_address = 1
+            ORDER BY a.creation DESC
+            LIMIT 1
+        """, (company.name,), as_dict=True)
         if address_name:
             shipping_address_s = frappe.get_doc("Address", address_name[0].name)
         else:
