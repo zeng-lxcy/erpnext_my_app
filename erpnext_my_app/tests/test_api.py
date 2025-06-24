@@ -44,7 +44,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "country": "China"          # 必填，按你需要修改
             }).insert()
             # 创建地址并关联到公司
-            frappe.get_doc({
+            company_address = frappe.get_doc({
                 "doctype": "Address",
                 "address_title": "Test Company - Shipping",
                 "address_type": "Shipping",
@@ -59,6 +59,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                     "link_name": "Test Company"
                 }]
             }).insert()
+            print("✅ 公司地址已创建：", company_address.name)
 
         # 确保默认地址模板存在
         if not frappe.db.exists("Address Template", "China"):
