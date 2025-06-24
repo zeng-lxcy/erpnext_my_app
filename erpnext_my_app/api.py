@@ -62,5 +62,5 @@ def export_delivery_notes_to_csv(delivery_note_ids):
     print(file_content)  # 读取并解码为字符串打印
     output.close()
 
-    file_doc = save_file(filename, file_content, None, "", is_private=0)
+    file_doc = save_file(filename, file_content.encode("utf-8"), None, "", is_private=0)
     return { "message" : {"file_url" : file_doc.file_url}}
