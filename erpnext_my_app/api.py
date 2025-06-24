@@ -37,23 +37,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         shipping_address_name = dn.shipping_address_name
         shipping_address = frappe.get_doc("Address", shipping_address_name)
         company = frappe.get_doc("Company", dn.company)
-
-        address_name = frappe.db.sql("""
-            SELECT a.name, a.address_line1, a.city, a.state, a.pincode, a.country
-            FROM `tabAddress` a
-            JOIN `tabDynamic Link` dl ON dl.parent = a.name
-            WHERE dl.link_doctype = 'Company'
-            AND dl.link_name = %s
-            AND a.is_shipping_address = 1
-            ORDER BY a.creation DESC
-            LIMIT 1
-        """, (company.get_formatted("company_name"),), as_dict=True)
-        if address_name:
-            print(address_name[0].name)
-            shipping_address_s = frappe.get_doc("Address", address_name[0].name)
-        else:
-            print(company.get_formatted("company_name") + "没有找到发货地址")
-            shipping_address_s = None  # 或 raise 自定义异常
+        shipping_address_s = frappe.get_doc("Address", company.name)
 
         amazon_order_id = ""
         if dn.items and dn.items[0].against_sales_order:
