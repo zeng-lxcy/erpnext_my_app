@@ -38,6 +38,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         shipping_address = frappe.get_doc("Address", shipping_address_name)
         company = frappe.get_doc("Company", dn.company)
 
+        print(dn.company.shipping_address_name)
         amazon_order_id = ""
         if dn.items and dn.items[0].against_sales_order:
             sales_order = frappe.get_doc("Sales Order", dn.items[0].against_sales_order)
@@ -49,8 +50,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
                 customer_name, customer_phone,
                 shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"),
                 item.item_name, item.qty,
-                company.get_formatted("company_name"), company.get_formatted("phone"),
-                dn.company.get_formatted("address_line1"), dn.company.get_formatted("city"), dn.company.get_formatted("state")
+                company.get_formatted("company_name"), company.get_formatted("phone")
             ])
 
     # 保存为 Frappe 文件
