@@ -7,13 +7,13 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
         
         # 确保默认地址模板存在
         if not frappe.db.exists("Address Template", "Default Template"):
-            doc = frappe.get_doc({
+            frappe.get_doc({
                 "doctype": "Address Template",
                 "address_template_name": "Default Template",
-                "template": "{{ address_line1 }}\n{{ city }}\n{{ country }}",  # 简单示例
-                "is_default": 1
-            })
-            doc.insert()
+                "template": "{{ address_line1 }}\n{{ city }}\n{{ country }}",
+                "is_default": 1,
+                "country": "China"  # 试试加上这个字段，部分版本需要
+            }).insert()
 
         # 顶层 Customer Group
         if not frappe.db.exists("Customer Group", "All Customer Groups"):
