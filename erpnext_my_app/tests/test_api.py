@@ -5,16 +5,6 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
 
-        # 创建价格表
-        if not frappe.db.exists("Price List", "Standard Selling"):
-            frappe.get_doc({
-                "doctype": "Price List",
-                "name": "Standard Selling",
-                "price_list_name": "Standard Selling",
-                "selling": 1,
-                "currency": "CNY"
-            }).insert()
-
         # 设置汇率（如果客户币种 ≠ 公司币种）
         if not frappe.db.exists("Currency Exchange", {"from_currency": "CNY", "to_currency": "CNY"}):
             frappe.get_doc({
@@ -23,6 +13,16 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "to_currency": "CNY",
                 "exchange_rate": 1.0,
                 "date": frappe.utils.nowdate()
+            }).insert()
+
+        # 创建价格表
+        if not frappe.db.exists("Price List", "Standard Selling"):
+            frappe.get_doc({
+                "doctype": "Price List",
+                "name": "Standard Selling",
+                "price_list_name": "Standard Selling",
+                "selling": 1,
+                "currency": "CNY"
             }).insert()
 
         # 创建销售订单时设置：
@@ -162,6 +162,9 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             "company": "Test Company",
             "delivery_date": frappe.utils.nowdate(),
             "amazon_order_id": "AMZ123456789",
+            "selling_price_list": "Standard Selling",
+            "price_list_currency": "CNY",
+            "plc_conversion_rate": 1.0,  # 直接设定为 1.0
             "items": [{
                 "item_code": item.item_code,
                 "qty": 1,
