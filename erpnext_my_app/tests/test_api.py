@@ -10,8 +10,11 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             frappe.get_doc({
                 "doctype": "Company",
                 "company_name": "Test Company",
-                "abbr": "TC"
+                "abbr": "TC",
+                "default_currency": "CNY",  # 必填，按你需要修改
+                "country": "China"          # 必填，按你需要修改
             }).insert()
+
 
         # 确保默认地址模板存在
         if not frappe.db.exists("Address Template", "Default Template"):
