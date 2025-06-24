@@ -5,6 +5,16 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
 
+        # 确保汇率存在
+        if not frappe.db.exists("Currency Exchange", {"from_currency": "INR", "to_currency": "CNY"}):
+            frappe.get_doc({
+                "doctype": "Currency Exchange",
+                "from_currency": "INR",
+                "to_currency": "CNY",
+                "exchange_rate": 0.085,  # 设置一个合理的汇率
+                "date": frappe.utils.nowdate()
+            }).insert()
+
         # 确保默认仓库类型存在
         for wt in ["Transit", "Stores", "Raw Material", "Finished Goods", "Scrap"]:
             if not frappe.db.exists("Warehouse Type", wt):
