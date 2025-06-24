@@ -22,18 +22,18 @@ def export_delivery_notes_to_csv(delivery_note_ids):
     writer = csv.writer(output)
     writer.writerow([
         "发货ID", "亚马逊订单号",
-        "客户名称", "客户电话",
-        "收货地址明细", "收货城市", "收货省份",
+        "客户名称", "客户电话", "收货人名称", "收货人电话",
+        "收货地址明细", "收货城市", "收货省份", "收货邮编",
         "商品名称", "商品数量",
         "发货名称", "发货电话",
-        "发货地址明细", "发货城市", "发货省份"
+        "发货地址明细", "发货城市", "发货省份", "发货邮编"
     ])
 
     for dn_id in delivery_note_ids:
         dn = frappe.get_doc("Delivery Note", dn_id)
 
-        for field, value in dn.as_dict().items():
-            print(f"{field}: {value}")
+        #for field, value in dn.as_dict().items():
+        #    print(f"{field}: {value}")
 
         customer_name = dn.customer
         customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
@@ -49,10 +49,11 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         for item in dn.items:
             writer.writerow([
                 dn.name, amazon_order_id,
-                customer_name, customer_phone,
-                shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"),
+                customer_name, customer_phone, dn.contact_person, dn.contact_mobile,
+                shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
                 item.item_name, item.qty,
-                company.get_formatted("company_name"), company.get_formatted("phone")
+                company.get_formatted("company_name"), company.get_formatted("phone"),
+                "津根2840", "四国中央市", "爱媛县", "799-0721"
             ])
 
     # 保存为 Frappe 文件
