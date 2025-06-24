@@ -49,8 +49,10 @@ def export_delivery_notes_to_csv(delivery_note_ids):
             LIMIT 1
         """, (company.name,), as_dict=True)
         if address_name:
+            print(address_name[0].name)
             shipping_address_s = frappe.get_doc("Address", address_name[0].name)
         else:
+            print("没有找到发货地址")
             shipping_address_s = None  # 或 raise 自定义异常
 
         amazon_order_id = ""
