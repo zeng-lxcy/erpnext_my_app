@@ -2,9 +2,38 @@ import frappe
 from frappe.tests.utils import FrappeTestCase
 
 class TestExportDeliveryNotesToCsv(FrappeTestCase):
-    def test_export_delivery_notes_to_csv(self):
+    def setUp(self):
         frappe.set_user("Administrator")
 
+        # 确保依赖数据存在
+        if not frappe.db.exists("Customer Group", "Commercial"):
+            frappe.get_doc({
+                "doctype": "Customer Group",
+                "customer_group_name": "Commercial",
+                "parent_customer_group": "All Customer Groups"
+            }).insert()
+
+        if not frappe.db.exists("Territory", "All Territories"):
+            frappe.get_doc({
+                "doctype": "Territory",
+                "territory_name": "All Territories",
+                "parent_territory": ""
+            }).insert()
+
+        if not frappe.db.exists("Item Group", "All Item Groups"):
+            frappe.get_doc({
+                "doctype": "Item Group",
+                "item_group_name": "All Item Groups",
+                "parent_item_group": ""
+            }).insert()
+
+        if not frappe.db.exists("UOM", "Nos"):
+            frappe.get_doc({
+                "doctype": "UOM",
+                "uom_name": "Nos"
+            }).insert()
+
+    def test_export_delivery_notes_to_csv(self):
         # 1. 创建客户
         customer = frappe.get_doc({
             "doctype": "Customer",
@@ -38,12 +67,12 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             }]
         }).insert()
 
-        # 4. 创建销售订单（确保字段 amazon_order_id 存在）
+        # 4. 创建销售订单
         sales_order = frappe.get_doc({
             "doctype": "Sales Order",
             "customer": customer.name,
             "delivery_date": frappe.utils.nowdate(),
-            "amazon_order_id": "AMZ123456789",  # 确保有此字段
+            "amazon_order_id": "AMZ123456789",
             "items": [{
                 "item_code": item.item_code,
                 "qty": 1,
@@ -64,7 +93,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             "shipping_address_name": address.name
         }).insert()
 
-        # 6. 调用 API（因为是 whitelist 的函数）
+        # 6. 调用 API
         result = frappe.call("erpnext_my_app.api.export_delivery_notes_to_csv", delivery_note.name)
 
         # 7. 验证导出结果
