@@ -32,7 +32,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         customer_name = dn.customer
         customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
         shipping_address_name = dn.shipping_address_name
-        shipping_address = frappe.get_doc("Address", shipping_address_name)
+        shipping_address = frappe.get_doc("Address", shipping_address_name).as_dict()
         shipping_address_str = get_address_display(shipping_address)
 
 
