@@ -37,8 +37,6 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         shipping_address_name = dn.shipping_address_name
         shipping_address = frappe.get_doc("Address", shipping_address_name)
         company = frappe.get_doc("Company", dn.company)
-        shipping_address_s = frappe.get_doc("Address", company.name)
-
         shipping_address_s = frappe.get_all("Address",
             filters={
                 "links.link_doctype": "Company",
