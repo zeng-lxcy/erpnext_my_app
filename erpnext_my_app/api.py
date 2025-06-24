@@ -31,15 +31,15 @@ def export_delivery_notes_to_csv(delivery_note_ids):
 
     for dn_id in delivery_note_ids:
         dn = frappe.get_doc("Delivery Note", dn_id)
+        
+        for field, value in dn.items():
+            print(f"{field}: {value}")
 
         customer_name = dn.customer
         customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
         shipping_address_name = dn.shipping_address_name
         shipping_address = frappe.get_doc("Address", shipping_address_name)
         company = frappe.get_doc("Company", dn.company)
-
-        for field, value in dn.items():
-            print(f"{field}: {value}")
 
         amazon_order_id = ""
         if dn.items and dn.items[0].against_sales_order:
