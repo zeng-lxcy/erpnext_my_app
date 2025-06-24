@@ -156,11 +156,16 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             "items": [{
                 "item_code": item.item_code,
                 "qty": 1,
+                "rate": 100,  # 必须有价格
+                "warehouse": "Stores - TC",  # 或你系统中的有效仓库
                 "against_sales_order": sales_order.name,
-                "against_sales_order_item": sales_order_item_name
+                "against_sales_order_item": sales_order_item_name,
+                "so_detail": sales_order_item_name  # 明确指定 Sales Order Item
             }],
-            "shipping_address_name": address.name
+            "shipping_address_name": address.name,
+            "delivery_date": frappe.utils.nowdate()
         }).insert()
+
 
         # 6. 调用 API
         result = frappe.call("erpnext_my_app.api.export_delivery_notes_to_csv", delivery_note.name)
