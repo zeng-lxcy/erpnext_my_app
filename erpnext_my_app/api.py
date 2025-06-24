@@ -1,8 +1,9 @@
 import csv
 import frappe
-import os
+import _osx_support
 from frappe.utils.file_manager import save_file
 from frappe.utils import get_site_path
+from frappe.contacts.doctype.address.address import get_address_display
 from io import StringIO
 
 @frappe.whitelist()
@@ -32,7 +33,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
         shipping_address_name = dn.shipping_address_name
         shipping_address = frappe.get_doc("Address", shipping_address_name)
-        shipping_address_str = frappe.utils.get_address_display(shipping_address)
+        shipping_address_str = get_address_display(shipping_address)
 
 
         amazon_order_id = ""
