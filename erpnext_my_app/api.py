@@ -31,7 +31,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
 
     for dn_id in delivery_note_ids:
         dn = frappe.get_doc("Delivery Note", dn_id)
-        
+
         for field, value in dn.items():
             print(f"{field}: {value}")
 
