@@ -149,6 +149,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
         # 5. 创建发货单
         delivery_note = frappe.get_doc({
             "doctype": "Delivery Note",
+            "company": "Test Company",
             "customer": customer.name,
             "posting_date": frappe.utils.nowdate(),
             "items": [{
