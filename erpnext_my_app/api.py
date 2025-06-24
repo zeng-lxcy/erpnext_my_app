@@ -31,7 +31,9 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         customer_name = dn.customer
         customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
         shipping_address_name = dn.shipping_address_name
-        shipping_address = frappe.get_doc("Address", shipping_address_name).display if shipping_address_name else ""
+        shipping_address = frappe.get_doc("Address", shipping_address_name)
+        shipping_address_str = frappe.utils.get_address_display(shipping_address)
+
 
         amazon_order_id = ""
         if dn.items and dn.items[0].against_sales_order:
@@ -42,7 +44,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
             writer.writerow([
                 customer_name,
                 customer_phone,
-                shipping_address,
+                shipping_address_str,
                 item.item_name,
                 item.qty,
                 amazon_order_id
