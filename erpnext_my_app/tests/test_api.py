@@ -10,7 +10,8 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             if not frappe.db.exists("Warehouse Type", wt):
                 frappe.get_doc({
                     "doctype": "Warehouse Type",
-                    "warehouse_type_name": wt
+                    "warehouse_type_name": wt,
+                    "name": wt
                 }).insert()
 
         # 确保公司存在
