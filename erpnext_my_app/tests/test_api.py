@@ -5,28 +5,40 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
 
-        # 确保依赖数据存在
+        # 顶层 Customer Group
+        if not frappe.db.exists("Customer Group", "All Customer Groups"):
+            frappe.get_doc({
+                "doctype": "Customer Group",
+                "customer_group_name": "All Customer Groups",
+                "is_group": 1
+            }).insert()
+
+        # 子 Customer Group
         if not frappe.db.exists("Customer Group", "Commercial"):
             frappe.get_doc({
                 "doctype": "Customer Group",
                 "customer_group_name": "Commercial",
-                "parent_customer_group": "All Customer Groups"
+                "parent_customer_group": "All Customer Groups",
+                "is_group": 0
             }).insert()
 
+        # 顶层 Territory
         if not frappe.db.exists("Territory", "All Territories"):
             frappe.get_doc({
                 "doctype": "Territory",
                 "territory_name": "All Territories",
-                "parent_territory": ""
+                "is_group": 1
             }).insert()
 
+        # 顶层 Item Group
         if not frappe.db.exists("Item Group", "All Item Groups"):
             frappe.get_doc({
                 "doctype": "Item Group",
                 "item_group_name": "All Item Groups",
-                "parent_item_group": ""
+                "is_group": 1
             }).insert()
 
+        # UOM
         if not frappe.db.exists("UOM", "Nos"):
             frappe.get_doc({
                 "doctype": "UOM",
