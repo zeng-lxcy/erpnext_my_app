@@ -37,7 +37,18 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         shipping_address_name = dn.shipping_address_name
         shipping_address = frappe.get_doc("Address", shipping_address_name)
         company = frappe.get_doc("Company", dn.company)
-        shipping_address_s = frappe.get_doc("Address", company.name)
+
+        address_list = frappe.get_all(
+            "Address",
+            filters={"address_title": company.name + " - Shipping", "address_type": "Shipping"},
+            fields=["name"]
+        )
+        if address_list:
+            shipping_address_s = frappe.get_doc("Address", address_list[0].name)
+        else:
+            shipping_address_s = None
+
+        print(company.name)
 
         amazon_order_id = ""
         if dn.items and dn.items[0].against_sales_order:

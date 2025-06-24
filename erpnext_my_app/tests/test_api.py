@@ -46,7 +46,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             # 创建地址并关联到公司
             frappe.get_doc({
                 "doctype": "Address",
-                "address_name": "Test Company",
+                "address_title": "Test Company - Shipping",
                 "address_type": "Shipping",
                 "address_line1": "123 测试路",
                 "address_line2": "测试楼 5F",
