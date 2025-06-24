@@ -37,14 +37,19 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         shipping_address_name = dn.shipping_address_name
         shipping_address = frappe.get_doc("Address", shipping_address_name)
         company = frappe.get_doc("Company", dn.company)
-        shipping_address_s = frappe.get_all("Address",
+        address_name = frappe.get_all("Address",
             filters={
                 "links.link_doctype": "Company",
                 "links.address_type": "Shipping",
                 "links.link_name": company.name
             },
+            fields=["name"],
             limit=1
         )
+        if address_name:
+            shipping_address_s = frappe.get_doc("Address", address_name[0].name)
+        else:
+            shipping_address_s = None  # 或 raise 自定义异常
 
         amazon_order_id = ""
         if dn.items and dn.items[0].against_sales_order:
