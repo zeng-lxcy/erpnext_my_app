@@ -52,7 +52,7 @@ def export_delivery_notes_to_csv(delivery_note_ids):
                 customer_name, customer_phone, dn.contact_person, dn.contact_mobile,
                 shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
                 item.item_name, item.qty,
-                company.get_formatted("company_name"), company.get_formatted("phone"),
+                company.get_formatted("company_name"), "0896-22-4988",
                 "津根2840", "四国中央市", "爱媛县", "799-0721"
             ])
 
