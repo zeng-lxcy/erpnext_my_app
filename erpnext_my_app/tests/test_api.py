@@ -135,6 +135,8 @@ class TestImportOrders(FrappeTestCase):
                 "doctype": "UOM",
                 "uom_name": "Nos"
             }).insert()
+        
+        print("✅ 测试环境已准备就绪")
 
     def fetchFileContent(self, url: str):
         try:
