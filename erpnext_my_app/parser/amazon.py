@@ -12,21 +12,19 @@ class AmazonOrderParser:
     def _fetch_content_from_file_doc(self):
         """Fetches and decodes content from a file document using frappe.utils.file_manager.get_file."""
         try:
-            # 使用 get_file 函数获取文件文档
-            # get_file 函数返回一个包含文件内容的字典，例如 {"content": b"..."}
-            file_doc = get_file(self.file_url)
             print(f"Fetching file from {self.file_url}...")
             
-            # 检查 file_doc 是否有效且包含内容
-            if file_doc and file_doc.get("content") is not None:
-                return file_doc.get("content").decode("shift_jis")
+            # get_file 返回 (file_path, content)，而不是 dict
+            file_path, file_content = get_file(self.file_url)
+            
+            if file_content:
+                return file_content.decode("shift_jis", errors="replace")
             else:
-                print(f"Warning: No content or invalid file document found for URL: {self.file_url}")
-                return "" # 如果没有内容，返回空字符串
+                print(f"Warning: No content found in file: {self.file_url}")
+                return ""
         except Exception as e:
-            # 捕获在获取或解码文件时可能发生的任何错误
             print(f"Error fetching or decoding file from {self.file_url}: {e}")
-            return "" # 发生错误时返回空字符串
+            return ""
 
     def parse(self):
         # StringIO(self.content) 可以处理空字符串，如果 _fetch_content_from_file_doc 返回空，这里也能正常运行
