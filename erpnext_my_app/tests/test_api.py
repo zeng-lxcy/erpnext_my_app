@@ -40,7 +40,7 @@ class TestImportOrders(FrappeTestCase):
             frappe.get_doc({
                 "doctype": "Company",
                 "company_name": "龍越商事株式会社",
-                "abbr": "TC",
+                "abbr": "RYUETSU",
                 "default_currency": "CNY",  # 必填，按你需要修改
                 "country": "China"          # 必填，按你需要修改
             }).insert()
