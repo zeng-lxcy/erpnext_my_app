@@ -18,8 +18,7 @@ class AmazonOrderParser:
             
             # 检查 file_doc 是否有效且包含内容
             if file_doc and file_doc.get("content") is not None:
-                # 解码内容，使用 "utf-8-sig" 处理可能的 BOM（字节顺序标记）
-                return file_doc.get("content").decode("utf-8-sig")
+                return file_doc.get("content").decode("shift_jis")
             else:
                 print(f"Warning: No content or invalid file document found for URL: {self.file_url}")
                 return "" # 如果没有内容，返回空字符串
