@@ -15,6 +15,7 @@ class AmazonOrderParser:
             # 使用 get_file 函数获取文件文档
             # get_file 函数返回一个包含文件内容的字典，例如 {"content": b"..."}
             file_doc = get_file(self.file_url)
+            print(f"Fetching file from {self.file_url}...")
             
             # 检查 file_doc 是否有效且包含内容
             if file_doc and file_doc.get("content") is not None:
