@@ -166,6 +166,7 @@ class TestImportOrders(FrappeTestCase):
         return file_doc.file_url
 
     def test_import_orders(self):
+        print("开始导入亚马逊订单...")
         # 1. 调用 API
         result = frappe.call("erpnext_my_app.api.import_orders", self.file_url, platform="amazon")
         expected_result = {
