@@ -1,9 +1,13 @@
+import requests
 import frappe
+from frappe.utils import get_site_path
 from frappe.tests.utils import FrappeTestCase
 
 
 class TestImportOrders(FrappeTestCase):
     def setUp(self):
+        self.file_url = self.createTestFile("amazon-test.txt")
+        
         frappe.set_user("Administrator")
 
         # 创建价格表
@@ -132,9 +136,37 @@ class TestImportOrders(FrappeTestCase):
                 "uom_name": "Nos"
             }).insert()
 
+    def fetchFileContent(self, url: str):
+        try:
+            resp = requests.get(url)
+            resp.raise_for_status()
+            return resp.content.decode("shift_jis", errors="replace")
+        except Exception as e:
+            print(f"Error downloading or decoding file: {e}")
+            return ""
+    
+    def createTestFile(self, filename="test.txt"):
+        # 1. 写入本地 public/files 目录
+        file_path = get_site_path("public", "files", filename)
+        with open(file_path, "w", encoding="shift_jis") as f:
+            f.write(fetchFileContent("https://ryuetsu.erpnext.com/files/amazon-test.txt"))
+
+        # 2. 在 File Doctype 中注册该文件
+        file_doc = frappe.get_doc({
+            "doctype": "File",
+            "file_url": f"/files/{filename}",
+            "is_private": 0,
+            "attached_to_doctype": None,
+            "attached_to_name": None,
+        })
+        file_doc.insert(ignore_permissions=True)
+
+        # 3. 返回可用于 get_file 的 file_url
+        return file_doc.file_url
+
     def test_import_orders(self):
         # 1. 调用 API
-        result = frappe.call("erpnext_my_app.api.import_orders", "https://ryuetsu.erpnext.com/files/amazon-test.txt", platform="amazon")
+        result = frappe.call("erpnext_my_app.api.import_orders", self.file_url, platform="amazon")
         expected_result = {
                 "status": "success",
                 "platform": "amazon",
