@@ -1,0 +1,148 @@
+import frappe
+import importlib
+from frappe.utils import add_days
+
+
+# 定义几个常量
+COMPANY_NAME_DEFAULT = "龍越商事株式会社"
+WAREHOUSE_NAME_DEFAULT = "线上天瞳"
+TERRITORY_DEFAULT = "Japan"
+
+class OrderImporter:
+    def __init__(self, platform: str):
+        self.platform = platform
+
+    def import_orders(self, file_url: str):
+        # 根据电商平台创建对应的订单解析器
+        parser_module = f"erpnext_my_app.parser.{self.platform}"
+        parser_class_name = f"{self.platform.capitalize()}OrderParser"
+        parser_module = importlib.import_module(parser_module)
+        parser_class = getattr(parser_module, parser_class_name)
+        parser = parser_class(file_url)
+        orders = parser.parse()
+
+        # 将文件中的销售订单同步到ERPNext
+        created_orders = []
+        for order_data in orders:
+            so = self._create_sales_order(order_data)
+            if so:
+                created_orders.append(so.name)
+        return created_orders
+
+    def _create_sales_order(self, order_data):
+        customer_info = order_data["customer"]
+        items = order_data["items"]
+        shipping_address_info = order_data.get("shipping_address")
+        order_id = order_data["order_id"]
+        transaction_date = order_data.get("transaction_date", frappe.utils.nowdate())
+        delivery_date = order_data.get("delivery_date", add_days(frappe.utils.nowdate()+1))
+
+        # 检查订单是否已经存在
+        existing_so = frappe.db.exists("Sales Order", {"amazon_order_id": order_id})
+        if existing_so:
+            return None
+			
+        # 创建客户
+        customer = frappe.get_doc({
+            "doctype": "Customer",
+            "customer_name": customer_info.get("name"),
+            "customer_group": customer_info.get("group"),
+			"customer_type": "Company" if customer_info.get("company") != "" else "Individual",
+            "territory": TERRITORY_DEFAULT,
+            "custom_phone": customer_info.get("phone")
+        })
+        customer.flags.ignore_mandatory = True
+        customer.insert(ignore_if_duplicate=True)
+		
+        # 创建客户地址
+        shipping_address = frappe.get_doc({
+            "doctype": "Address",
+            "address_title": customer.name + " - Shipping",
+            "address_type": "Shipping",
+            "pincode": shipping_address_info.get("pincode", ""),
+            "address_line1": shipping_address_info.get("address_line1"),
+            "address_line2": shipping_address_info.get("address_line2"),
+            "city": shipping_address_info.get("city"),
+            "state": get_state_name_from_pincode(
+                country_code=shipping_address_info.get("country"),
+                postal_code=shipping_address_info.get("pincode"),
+                state=shipping_address_info.get("state")
+            ),
+            "country": shipping_address_info.get("country", ""),
+            "phone": customer_info.get("phone"),
+            "email_id": customer_info.get("email"),
+			"links": [{"link_doctype": "Customer", "link_name": customer.name}]
+        })
+        #shipping_address.append("links", {"link_doctype": "Customer", "link_name": customer.name})
+        shipping_address.flags.ignore_mandatory = True
+        shipping_address.insert(ignore_if_duplicate=True)
+		
+        # 创建客户联系人
+        contact = frappe.get_doc({
+            "doctype": "Contact",
+            "first_name": customer_info.get("recipient", customer_info.get("name")),
+            "email_id": customer_info.get("email"),
+            "phone": customer_info.get("phone"),
+            "links": [{"link_doctype": "Customer", "link_name": customer.name}]
+        })
+        contact.flags.ignore_mandatory = True
+        contact.insert(ignore_if_duplicate=True)
+
+        # 创建销售订单
+        so_data = {
+            "doctype": "Sales Order",
+			"amazon_order_id": order_id,
+            "customer": customer.name,
+            "transaction_date": transaction_date,
+            "delivery_date": delivery_date,
+            "items": items,
+			"set_warehouse": WAREHOUSE_NAME_DEFAULT,
+            "company": COMPANY_NAME_DEFAULT,
+            "territory": TERRITORY_DEFAULT,
+            "customer_address": shipping_address.name,
+			"shipping_address": shipping_address.name,
+            "contact_person": contact.name,
+            "status": "Draft"
+        }
+        so = frappe.get_doc(so_data)
+        so.insert()
+        so.submit()
+        return so
+
+def get_state_name_from_pincode(country_code=None, postal_code=None, state=None):
+	if not all((country_code, postal_code)):
+		return state
+
+	def get_first_three_digits(value):
+		if isinstance(value, str):
+			if len(value.strip()) == 6 and value.strip().isdigit():
+				return int(value[:3])
+		elif isinstance(value, int):
+			if len(str(value)) == 6:
+				return int(str(value)[:3])
+
+	if "india_compliance" in frappe.get_installed_apps() and country_code.lower() == "in":
+		from india_compliance.gst_india.constants import STATE_PINCODE_MAPPING
+
+		first_three_digits = get_first_three_digits(postal_code)
+
+		if first_three_digits:
+			state_name = ""
+			for _state, _range in STATE_PINCODE_MAPPING.items():
+				if isinstance(_range[0], tuple):
+					for c_range in _range:
+						lower_range, upper_range = c_range
+						if lower_range <= first_three_digits <= upper_range:
+							state_name = _state
+							if state and state[0].lower() == _state[0].lower():
+								return _state
+				else:
+					lower_range, upper_range = _range
+					if lower_range <= first_three_digits <= upper_range:
+						state_name = _state
+						if state and state[0].lower() == _state[0].lower():
+							return _state
+			if state_name:
+				return state_name
+
+	return state

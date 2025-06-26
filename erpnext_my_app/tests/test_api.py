@@ -1,6 +1,155 @@
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
+
+class TestImportOrders(FrappeTestCase):
+    def setUp(self):
+        frappe.set_user("Administrator")
+
+        # 创建价格表
+        if not frappe.db.exists("Price List", "Standard Selling"):
+            frappe.get_doc({
+                "doctype": "Price List",
+                "name": "Standard Selling",
+                "price_list_name": "Standard Selling",
+                "selling": 1,
+                "currency": "CNY"
+            }).insert()
+
+        # 确保汇率存在
+        if not frappe.db.exists("Currency Exchange", {"from_currency": "INR", "to_currency": "CNY"}):
+            frappe.get_doc({
+                "doctype": "Currency Exchange",
+                "from_currency": "INR",
+                "to_currency": "CNY",
+                "exchange_rate": 0.085,  # 设置一个合理的汇率
+                "date": frappe.utils.nowdate()
+            }).insert()
+
+        # 确保默认仓库类型存在
+        for wt in ["线上天瞳"]:
+            if not frappe.db.exists("Warehouse Type", wt):
+                frappe.get_doc({
+                    "doctype": "Warehouse Type",
+                    "warehouse_type_name": wt,
+                    "name": wt
+                }).insert()
+
+        # 确保公司存在
+        if not frappe.db.exists("Company", "龍越商事株式会社"):
+            frappe.get_doc({
+                "doctype": "Company",
+                "company_name": "龍越商事株式会社",
+                "abbr": "TC",
+                "default_currency": "CNY",  # 必填，按你需要修改
+                "country": "China"          # 必填，按你需要修改
+            }).insert()
+            # 创建地址并关联到公司
+            company_address = frappe.get_doc({
+                "doctype": "Address",
+                "address_title": "龍越商事株式会社 - Shipping",
+                "address_type": "Shipping",
+                "address_line1": "123 测试路",
+                "address_line2": "测试楼 5F",
+                "city": "上海",
+                "state": "上海市",
+                "pincode": "200000",
+                "country": "China",
+                "links": [{
+                    "link_doctype": "Company",
+                    "link_name": "龍越商事株式会社"
+                }]
+            }).insert()
+            print("✅ 公司地址已创建：", company_address.name)
+
+        # 确保默认地址模板存在
+        if not frappe.db.exists("Address Template", "China"):
+            frappe.get_doc({
+                "doctype": "Address Template",
+                "country": "China",
+                "is_default": 1,
+                "name": "China"  # Address Template 的主键是 name，通常等于 country
+            }).insert()
+
+
+        # 顶层 Customer Group
+        if not frappe.db.exists("Customer Group", "All Customer Groups"):
+            frappe.get_doc({
+                "doctype": "Customer Group",
+                "customer_group_name": "All Customer Groups",
+                "is_group": 1
+            }).insert()
+        # 子 Customer Group
+        if not frappe.db.exists("Customer Group", "Amazon"):
+            frappe.get_doc({
+                "doctype": "Customer Group",
+                "customer_group_name": "Amazon",
+                "parent_customer_group": "All Customer Groups",
+                "is_group": 1
+            }).insert()
+        # 子 Customer Group
+        for wt in ["亚马逊 - Amanex", "亚马逊"]:
+            if not frappe.db.exists("Customer Group", wt):
+                frappe.get_doc({
+                    "doctype": "Customer Group",
+                    "customer_group_name": wt,
+                    "parent_customer_group": "Amazon",
+                    "is_group": 0
+                }).insert()
+
+        # 顶层 Territory
+        if not frappe.db.exists("Territory", "All Territories"):
+            frappe.get_doc({
+                "doctype": "Territory",
+                "territory_name": "All Territories",
+                "is_group": 1
+            }).insert()
+
+        # 顶层 Item Group
+        if not frappe.db.exists("Item Group", "All Item Groups"):
+            frappe.get_doc({
+                "doctype": "Item Group",
+                "item_group_name": "All Item Groups",
+                "is_group": 1
+            }).insert()
+
+        # 商品
+        if not frappe.db.exists("Item", "测试商品"):
+            frappe.get_doc({
+                "doctype": "Item",
+                "item_code": "测试商品",
+                "item_name": "测试商品",
+                "item_group": "All Item Groups",
+                "stock_uom": "Nos",
+                "is_stock_item": 0,
+                "custom_amazon_sku": "rs-55ccc"  # 示例 SKU
+            }).insert()
+
+        # UOM
+        if not frappe.db.exists("UOM", "Nos"):
+            frappe.get_doc({
+                "doctype": "UOM",
+                "uom_name": "Nos"
+            }).insert()
+
+    def test_import_orders(self):
+        # 1. 调用 API
+        result = frappe.call("erpnext_my_app.api.import_orders", "https://ryuetsu.erpnext.com/files/amazon-test.txt", platform="amazon")
+        expected_result = {
+                "status": "success",
+                "platform": "amazon",
+                "imported_count": 12,
+        }
+
+        # 2. 验证结果
+        self.assertEqual(expected_result, result)
+        print("亚马逊订单成功导入数：", result["imported_count"])
+
+    def tearDown(self):
+        # 回滚所有更改
+        frappe.db.rollback()
+
+
 class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
@@ -182,13 +331,15 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             "delivery_date": frappe.utils.nowdate()
         }).insert()
 
-
         # 6. 调用 API
         result = frappe.call("erpnext_my_app.api.export_delivery_notes_to_csv", delivery_note.name)
-
+        expected_result = {
+                "status": "success",
+                "file_url": result["file_url"],
+        }
         # 7. 验证导出结果
-        self.assertIn("file_url", result["message"])
-        print("✅ CSV 文件已生成：", result["message"]["file_url"])
+        self.assertEqual(expected_result, result)
+        print("发货 CSV 文件已生成：", result["file_url"])
 
     def tearDown(self):
         # 回滚所有更改

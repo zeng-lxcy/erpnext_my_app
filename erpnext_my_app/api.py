@@ -1,13 +1,26 @@
 import csv
 import frappe
-import _osx_support
-from frappe.utils.file_manager import save_file
-from frappe.utils import get_site_path
 from io import StringIO
+from frappe.utils.file_manager import save_file
+from erpnext_my_app.parser.order_importer import OrderImporter
+
+logger = frappe.logger("erpnext_my_app")
 
 @frappe.whitelist()
 def hello():
     return {"message": "Hello, World!"}
+
+@frappe.whitelist()
+def import_orders(file_url: str, platform: str = "amazon"):
+    importer = OrderImporter(platform)
+    orders = importer.import_orders(file_url)
+    result = {
+            "status": "success",
+            "platform": platform,
+            "imported_count": orders.count
+    }
+    logger.info(f"Imported {len(orders)} orders from {platform} platform.")
+    return result
 
 @frappe.whitelist()
 def export_delivery_notes_to_csv(delivery_note_ids):
@@ -63,4 +76,9 @@ def export_delivery_notes_to_csv(delivery_note_ids):
     output.close()
 
     file_doc = save_file(filename, file_content.encode("utf-8"), None, "", is_private=0)
-    return { "message" : {"file_url" : file_doc.file_url}}
+    result = {
+            "status": "success",
+            "file_url": file_doc.file_url,
+    }
+    logger.info(f"Exported delivery notes to {file_doc.file_url}")
+    return result
