@@ -160,6 +160,7 @@ class TestImportOrders(FrappeTestCase):
             "attached_to_name": None,
         })
         file_doc.insert(ignore_permissions=True)
+        print("✅ 测试文件已创建：", file_doc.file_url)
 
         # 3. 返回可用于 get_file 的 file_url
         return file_doc.file_url
