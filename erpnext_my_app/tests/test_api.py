@@ -149,7 +149,7 @@ class TestImportOrders(FrappeTestCase):
         # 1. 写入本地 public/files 目录
         file_path = get_site_path("public", "files", filename)
         with open(file_path, "w", encoding="shift_jis") as f:
-            f.write(fetchFileContent("https://ryuetsu.erpnext.com/files/amazon-test.txt"))
+            f.write(self.fetchFileContent("https://ryuetsu.erpnext.com/files/amazon-test.txt"))
 
         # 2. 在 File Doctype 中注册该文件
         file_doc = frappe.get_doc({
