@@ -166,7 +166,7 @@ class TestImportOrders(FrappeTestCase):
         # 2. 在 File Doctype 中注册该文件
         file_doc = frappe.get_doc({
             "doctype": "File",
-            "file_url": f"/files/{filename}",
+            "file_url": f"{filename}",
             "is_private": 0,
             "attached_to_doctype": None,
             "attached_to_name": None,
