@@ -75,7 +75,7 @@ class TestImportOrders(FrappeTestCase):
                     "warehouse_name": wt,
                     "company": "龍越商事株式会社",
                     "name": wt
-                }).insert()
+                }).insert(ignore_if_duplicate=True)
 
         # 确保默认地址模板存在
         if not frappe.db.exists("Address Template", "China"):
