@@ -128,7 +128,7 @@ class TestImportOrders(FrappeTestCase):
         }).insert(ignore_if_duplicate=True)
         
         # 6. Currency Exchange (INR <-> CNY) - 关键！
-        today = nowdate()
+        today = frappe.utils.nowdate()
         frappe.get_doc({
             "doctype": "Currency Exchange",
             "from_currency": "INR",
