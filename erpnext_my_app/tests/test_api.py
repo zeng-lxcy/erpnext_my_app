@@ -127,12 +127,12 @@ class TestImportOrders(FrappeTestCase):
             "is_group": 0 # 如果它不是一个组
         }).insert(ignore_if_duplicate=True)
         
-        # 6. Currency Exchange (INR <-> CNY) - 关键！
+        # 6. Currency Exchange (INR <-> JPY) - 关键！
         today = frappe.utils.nowdate()
         frappe.get_doc({
             "doctype": "Currency Exchange",
             "from_currency": "INR",
-            "to_currency": "CNY",
+            "to_currency": "JPY",
             "exchange_rate": 0.088,
             "conversion_rate": 1 / 0.088,
             "effective_date": today,
@@ -140,7 +140,7 @@ class TestImportOrders(FrappeTestCase):
 
         frappe.get_doc({
             "doctype": "Currency Exchange",
-            "from_currency": "CNY",
+            "from_currency": "JPY",
             "to_currency": "INR",
             "exchange_rate": 11.36,
             "conversion_rate": 1 / 11.36,
@@ -262,15 +262,15 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "name": "Standard Selling",
                 "price_list_name": "Standard Selling",
                 "selling": 1,
-                "currency": "CNY"
+                "currency": "JPY"
             }).insert()
 
         # 确保汇率存在
-        if not frappe.db.exists("Currency Exchange", {"from_currency": "INR", "to_currency": "CNY"}):
+        if not frappe.db.exists("Currency Exchange", {"from_currency": "INR", "to_currency": "JPY"}):
             frappe.get_doc({
                 "doctype": "Currency Exchange",
                 "from_currency": "INR",
-                "to_currency": "CNY",
+                "to_currency": "JPY",
                 "exchange_rate": 0.085,  # 设置一个合理的汇率
                 "date": frappe.utils.nowdate()
             }).insert()
@@ -290,7 +290,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "doctype": "Company",
                 "company_name": "Test Company",
                 "abbr": "TC",
-                "default_currency": "CNY",  # 必填，按你需要修改
+                "default_currency": "JPY",  # 必填，按你需要修改
                 "country": "China"          # 必填，按你需要修改
             }).insert()
             # 创建地址并关联到公司
@@ -403,7 +403,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             "delivery_date": frappe.utils.nowdate(),
             "amazon_order_id": "AMZ123456789",
             "selling_price_list": "Standard Selling",
-            "price_list_currency": "CNY",
+            "price_list_currency": "JPY",
             "plc_conversion_rate": 1.0,  # 直接设定为 1.0
             "items": [{
                 "item_code": item.item_code,
