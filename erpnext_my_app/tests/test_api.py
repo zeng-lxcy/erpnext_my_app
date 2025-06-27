@@ -118,7 +118,16 @@ class TestImportOrders(FrappeTestCase):
                 "territory_name": "All Territories",
                 "is_group": 1
             }).insert()
-
+        # 添加：确保 Territory: Japan 存在
+        frappe.get_doc({
+            "doctype": "Territory",
+            "territory_name": "Japan",
+            "name": "Japan", # 明确设置 name
+            "parent_territory": "All Territories", # 通常有一个根节点
+            "is_group": 0 # 如果它不是一个组
+        }).insert(ignore_if_duplicate=True)
+        frappe.db.commit() # 确保提交到测试数据库
+        
         # 顶层 Item Group
         if not frappe.db.exists("Item Group", "All Item Groups"):
             frappe.get_doc({
