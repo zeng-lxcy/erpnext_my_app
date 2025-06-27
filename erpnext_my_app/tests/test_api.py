@@ -6,7 +6,7 @@ from frappe.tests.utils import FrappeTestCase
 
 class TestImportOrders(FrappeTestCase):
     def setUp(self):
-        self.file_url = self.createTestFile("amazon-test.txt")
+        self.file_url = self.createTestFile("https://ryuetsu.erpnext.com/files/amazon-test.txt")
         
         frappe.set_user("Administrator")
 
@@ -157,25 +157,25 @@ class TestImportOrders(FrappeTestCase):
             print(f"Error downloading or decoding file: {e}")
             return ""
     
-    def createTestFile(self, filename="test.txt"):
+    def createTestFile(self, url):
         # 1. 写入本地 public/files 目录
-        file_path = get_site_path("public", "files", filename)
+        file_path = get_site_path("public", "files", "amazon-test.txt")
         with open(file_path, "w", encoding="shift_jis", errors="replace") as f:
-            f.write(self.fetchFileContent("https://ryuetsu.erpnext.com/files/amazon-test.txt").replace("\ufffd", "?"))
+            f.write(self.fetchFileContent(url).replace("\ufffd", "?"))
 
         # 2. 在 File Doctype 中注册该文件
         file_doc = frappe.get_doc({
             "doctype": "File",
-            "file_url": f"{filename}",
+            "file_url": f"{"amazon-test.txt"}",
             "is_private": 0,
             "attached_to_doctype": None,
             "attached_to_name": None,
         })
         file_doc.insert(ignore_permissions=True)
-        print("✅ 测试文件已创建：", file_doc.file_url)
+        print("✅ 测试文件已创建：", file_path)
 
         # 3. 返回可用于 get_file 的 file_url
-        return file_doc.file_url
+        return file_path
 
     def test_import_orders(self):
         print("开始导入亚马逊订单...")
