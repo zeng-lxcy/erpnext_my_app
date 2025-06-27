@@ -200,6 +200,22 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
 
+        # 确保地址模板存在
+        if not frappe.db.exists("Address Template", "Default"):
+            frappe.get_doc({
+                "doctype": "Address Template",
+                "name": "Default",
+                "is_default": 1,
+                "country": "Japan",  # 改成你使用的国家
+                "template": """
+                    {{ address_line1 }}
+                    {{ address_line2 }}
+                    {{ city }} {{ state }}
+                    {{ pincode }}
+                    {{ country }}
+                """.strip()
+            }).insert()
+
         # 创建价格表
         if not frappe.db.exists("Price List", "Standard Selling"):
             frappe.get_doc({
