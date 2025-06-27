@@ -7,7 +7,7 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_field
 
 class TestImportOrders(FrappeTestCase):
     def setUp(self):
-        self.file_url = self.createTestFile("https://ryuetsu.erpnext.com/files/amazon-test.txt")
+        self.file_url = self.createTestFile("https://ryuetsu.erpnext.com/files/amazon-test-.txt")
         
         frappe.set_user("Administrator")
 

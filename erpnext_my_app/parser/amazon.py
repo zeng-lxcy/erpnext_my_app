@@ -1,7 +1,7 @@
 import csv
 import frappe
 from io import StringIO
-from frappe.utils import cint, flt # 假设这些工具函数可用
+from frappe.utils import cint, flt, getdate, add_days, nowdate # 假设这些工具函数可用
 from frappe.utils.file_manager import get_file # 正确的导入路径
 
 class AmazonOrderParser:
@@ -70,10 +70,12 @@ class AmazonOrderParser:
 						"conversion_factor": 1.0
                     })
             
+            transaction_date_raw = first_row.get("purchase-date")
+            delivery_date_raw = first_row.get("promise-date")
             order = {
                 "order_id": order_id,   #亚马逊订单号
-                "transaction_date": first_row.get("purchase-date"), # 交易日期
-                "delivery_date": first_row.get("promise-date"), # 交货日期
+                "transaction_date": getdate(transaction_date_raw) if transaction_date_raw else nowdate(), # 交易日期
+                "delivery_date": getdate(delivery_date_raw) if delivery_date_raw else add_days(nowdate(), 1), # 交货日期
                 "items": items, # 订单包含的商品列表
                 "customer": {
                     "name": first_row.get("buyer-name", ""), # 买家姓名
