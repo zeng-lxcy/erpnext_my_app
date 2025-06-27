@@ -102,6 +102,7 @@ class OrderImporter:
             "customer_address": shipping_address.name,
 			"shipping_address": shipping_address.name,
             "contact_person": contact.name,
+			"currency": "JPY",
             "status": "Draft"
         }
         so = frappe.get_doc(so_data)
