@@ -72,9 +72,10 @@ class TestImportOrders(FrappeTestCase):
             if not frappe.db.exists("Warehouse", wt):
                 frappe.get_doc({
                     "doctype": "Warehouse",
+                    "name": wt,
                     "warehouse_name": wt,
-                    "company": "龍越商事株式会社",
-                    "name": wt
+                    "warehouse_type": "Stores",
+                    "company": "龍越商事株式会社"
                 }).insert(ignore_if_duplicate=True)
 
         # 确保默认地址模板存在
@@ -214,7 +215,7 @@ class TestImportOrders(FrappeTestCase):
         print("✅ 测试文件已创建：", file_path)
 
         # 3. 返回可用于 get_file 的 file_url
-        return file_path
+        return file_doc.file_url
 
     def test_import_orders(self):
         print("开始导入亚马逊订单...")

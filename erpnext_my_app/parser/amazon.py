@@ -10,13 +10,11 @@ class AmazonOrderParser:
         self.content = self._fetch_content_from_file_doc() # 调用方法获取内容
 
     def _fetch_content_from_file_doc(self):
-        """Fetches and decodes content from a local file path (self.file_url)."""
+        """Fetches and decodes content from a file attached in the File DocType (self.file_url)."""
         try:
-            print(f"Opening local file: {self.file_url}...")
-            
-            # 直接打开文件（假设 self.file_url 是本地路径，非 URL）
-            with open(self.file_url, "rb") as f:
-                file_content = f.read()
+            print(f"Fetching file using get_file: {self.file_url}...")
+
+            file_path, file_content = get_file(self.file_url)
 
             if file_content:
                 return file_content.decode("shift_jis", errors="replace")
@@ -25,7 +23,7 @@ class AmazonOrderParser:
                 return ""
 
         except Exception as e:
-            print(f"Error opening or decoding file from {self.file_url}: {e}")
+            print(f"Error fetching or decoding file from {self.file_url}: {e}")
             return ""
 
     def parse(self):

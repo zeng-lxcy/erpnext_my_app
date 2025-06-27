@@ -94,7 +94,7 @@ class OrderImporter:
             "transaction_date": transaction_date,
             "delivery_date": delivery_date,
             "items": items,
-			#"set_warehouse": WAREHOUSE_NAME_DEFAULT,
+			"set_warehouse": WAREHOUSE_NAME_DEFAULT,
             "company": COMPANY_NAME_DEFAULT,
             "territory": TERRITORY_DEFAULT,
             "customer_address": shipping_address.name,
