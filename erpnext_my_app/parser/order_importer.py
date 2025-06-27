@@ -1,7 +1,6 @@
 import frappe
 import importlib
-from frappe.utils import add_days
-
+from frappe.utils import getdate, add_days, nowdate
 
 # 定义几个常量
 COMPANY_NAME_DEFAULT = "龍越商事株式会社"
@@ -34,8 +33,10 @@ class OrderImporter:
         items = order_data["items"]
         shipping_address_info = order_data.get("shipping_address")
         order_id = order_data["order_id"]
-        transaction_date = order_data.get("transaction_date", frappe.utils.nowdate())
-        delivery_date = order_data.get("delivery_date", add_days(frappe.utils.nowdate(), 1))
+        transaction_date_raw = order_data.get("transaction_date")
+        delivery_date_raw = order_data.get("delivery_date")
+        transaction_date = getdate(transaction_date_raw) if transaction_date_raw else nowdate()
+        delivery_date = getdate(delivery_date_raw) if delivery_date_raw else add_days(nowdate(), 1)
 
         # 检查订单是否已经存在
         existing_so = frappe.db.exists("Sales Order", {"amazon_order_id": order_id})
