@@ -159,14 +159,15 @@ class TestImportOrders(FrappeTestCase):
     
     def createTestFile(self, url):
         # 1. 写入本地 public/files 目录
-        file_path = get_site_path("public", "files", "amazon-test.txt")
+        filename = url.split('/')[-1]
+        file_path = get_site_path("public", "files", filename)
         with open(file_path, "w", encoding="shift_jis", errors="replace") as f:
             f.write(self.fetchFileContent(url).replace("\ufffd", "?"))
 
         # 2. 在 File Doctype 中注册该文件
         file_doc = frappe.get_doc({
             "doctype": "File",
-            "file_url": f"{"amazon-test.txt"}",
+            "file_url": f"/files/{filename}",
             "is_private": 0,
             "attached_to_doctype": None,
             "attached_to_name": None,
