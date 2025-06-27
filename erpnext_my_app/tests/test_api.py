@@ -18,15 +18,15 @@ class TestImportOrders(FrappeTestCase):
                 "name": "Standard Selling",
                 "price_list_name": "Standard Selling",
                 "selling": 1,
-                "currency": "CNY"
+                "currency": "JPY"
             }).insert()
 
         # 确保汇率存在
-        if not frappe.db.exists("Currency Exchange", {"from_currency": "INR", "to_currency": "CNY"}):
+        if not frappe.db.exists("Currency Exchange", {"from_currency": "INR", "to_currency": "JPY"}):
             frappe.get_doc({
                 "doctype": "Currency Exchange",
                 "from_currency": "INR",
-                "to_currency": "CNY",
+                "to_currency": "JPY",
                 "exchange_rate": 0.085,  # 设置一个合理的汇率
                 "date": frappe.utils.nowdate()
             }).insert()
@@ -37,8 +37,8 @@ class TestImportOrders(FrappeTestCase):
                 "doctype": "Company",
                 "company_name": "龍越商事株式会社",
                 "abbr": "RYUETSU",
-                "default_currency": "INR",  # 必填，按你需要修改
-                "country": "China"          # 必填，按你需要修改
+                "default_currency": "JPY",  # 必填，按你需要修改
+                "country": "Japan"          # 必填，按你需要修改
             }).insert()
             # 创建地址并关联到公司
             company_address = frappe.get_doc({
@@ -50,7 +50,7 @@ class TestImportOrders(FrappeTestCase):
                 "city": "上海",
                 "state": "上海市",
                 "pincode": "200000",
-                "country": "China",
+                "country": "Japan",
                 "links": [{
                     "link_doctype": "Company",
                     "link_name": "龍越商事株式会社"
