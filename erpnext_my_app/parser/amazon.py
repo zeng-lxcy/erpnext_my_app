@@ -10,20 +10,22 @@ class AmazonOrderParser:
         self.content = self._fetch_content_from_file_doc() # 调用方法获取内容
 
     def _fetch_content_from_file_doc(self):
-        """Fetches and decodes content from a file document using frappe.utils.file_manager.get_file."""
+        """Fetches and decodes content from a local file path (self.file_url)."""
         try:
-            print(f"Fetching file from {self.file_url}...")
+            print(f"Opening local file: {self.file_url}...")
             
-            # get_file 返回 (file_path, content)，而不是 dict
-            file_path, file_content = get_file(self.file_url)
-            
+            # 直接打开文件（假设 self.file_url 是本地路径，非 URL）
+            with open(self.file_url, "rb") as f:
+                file_content = f.read()
+
             if file_content:
                 return file_content.decode("shift_jis", errors="replace")
             else:
                 print(f"Warning: No content found in file: {self.file_url}")
                 return ""
+
         except Exception as e:
-            print(f"Error fetching or decoding file from {self.file_url}: {e}")
+            print(f"Error opening or decoding file from {self.file_url}: {e}")
             return ""
 
     def parse(self):
