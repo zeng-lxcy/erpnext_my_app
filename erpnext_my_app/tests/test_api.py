@@ -32,6 +32,8 @@ class TestImportOrders(FrappeTestCase):
             }).insert()
 
         # 确保公司存在
+        if frappe.db.exists("Company", "龍越商事株式会社"):
+            frappe.delete_doc("Company", "龍越商事株式会社", force=True)
         if not frappe.db.exists("Company", "龍越商事株式会社"):
             company = frappe.get_doc({
                 "doctype": "Company",
