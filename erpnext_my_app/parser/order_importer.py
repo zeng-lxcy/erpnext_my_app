@@ -11,7 +11,6 @@ class OrderImporter:
 		# 根据仓库名称查找仓库
         self.warehouse = frappe.get_value("Warehouse", {"warehouse_name": WAREHOUSE_NAME_DEFAULT}, "name")
         self.platform = platform
-        print("mo renck" + self.warehouse)
 
     def import_orders(self, file_url: str):
         # 根据电商平台创建对应的订单解析器
@@ -102,7 +101,7 @@ class OrderImporter:
             "customer_address": shipping_address.name,
 			"shipping_address": shipping_address.name,
             "contact_person": contact.name,
-			"currency": "CNY",
+			"currency": "JPY",
 			"set_warehouse": self.warehouse,
             "status": "Draft"
         }
