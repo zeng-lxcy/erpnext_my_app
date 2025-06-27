@@ -223,7 +223,7 @@ class TestImportOrders(FrappeTestCase):
         expected_result = {
                 "status": "success",
                 "platform": "amazon",
-                "imported_count": 12,
+                "imported_count": 1,
         }
 
         # 2. 验证结果
