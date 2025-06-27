@@ -214,7 +214,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                     {{ pincode }}
                     {{ country }}
                 """.strip()
-            }).insert()
+            }).insert(ignore_if_duplicate=True)
 
         # 创建价格表
         if not frappe.db.exists("Price List", "Standard Selling"):
