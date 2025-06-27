@@ -35,7 +35,7 @@ class OrderImporter:
         shipping_address_info = order_data.get("shipping_address")
         order_id = order_data["order_id"]
         transaction_date = order_data.get("transaction_date", frappe.utils.nowdate())
-        delivery_date = order_data.get("delivery_date", add_days(frappe.utils.nowdate()+1))
+        delivery_date = order_data.get("delivery_date", add_days(frappe.utils.nowdate(), 1))
 
         # 检查订单是否已经存在
         existing_so = frappe.db.exists("Sales Order", {"amazon_order_id": order_id})
