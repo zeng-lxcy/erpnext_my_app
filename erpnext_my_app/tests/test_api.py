@@ -2,6 +2,7 @@ import requests
 import frappe
 from frappe.utils import get_site_path
 from frappe.tests.utils import FrappeTestCase
+from frappe.custom.doctype.custom_field.custom_field import create_custom_field
 
 
 class TestImportOrders(FrappeTestCase):
@@ -85,7 +86,6 @@ class TestImportOrders(FrappeTestCase):
                 "name": "China"  # Address Template 的主键是 name，通常等于 country
             }).insert()
 
-
         # 顶层 Customer Group
         if not frappe.db.exists("Customer Group", "All Customer Groups"):
             frappe.get_doc({
@@ -126,6 +126,17 @@ class TestImportOrders(FrappeTestCase):
                 "item_group_name": "All Item Groups",
                 "is_group": 1
             }).insert()
+
+        # 确保 custom_amazon_sku 字段存在
+        # 仅在测试环境中创建，生产环境应通过 DocType 定义或 UI 创建
+        create_custom_field("Item", {
+            "fieldname": "custom_amazon_sku",
+            "label": "Amazon SKU",
+            "fieldtype": "Data",
+            "insert_after": "item_code",
+            "unique": 0, # 如果这个 SKU 可能重复，unique 设为 0
+        })
+        frappe.db.commit() # 提交更改
 
         # 商品
         if not frappe.db.exists("Item", "测试商品"):
