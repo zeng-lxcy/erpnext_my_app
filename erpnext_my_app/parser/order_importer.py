@@ -94,13 +94,13 @@ class OrderImporter:
             "transaction_date": transaction_date,
             "delivery_date": delivery_date,
             "items": items,
-			"set_warehouse": WAREHOUSE_NAME_DEFAULT,
             "company": COMPANY_NAME_DEFAULT,
             "territory": TERRITORY_DEFAULT,
             "customer_address": shipping_address.name,
 			"shipping_address": shipping_address.name,
             "contact_person": contact.name,
 			"currency": "CNY",
+			#"set_warehouse": WAREHOUSE_NAME_DEFAULT,
             "status": "Draft"
         }
         so = frappe.get_doc(so_data)
