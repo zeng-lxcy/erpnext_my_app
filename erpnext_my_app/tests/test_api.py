@@ -126,7 +126,26 @@ class TestImportOrders(FrappeTestCase):
             "parent_territory": "All Territories", # 通常有一个根节点
             "is_group": 0 # 如果它不是一个组
         }).insert(ignore_if_duplicate=True)
-        frappe.db.commit() # 确保提交到测试数据库
+        
+        # 6. Currency Exchange (INR <-> CNY) - 关键！
+        today = nowdate()
+        frappe.get_doc({
+            "doctype": "Currency Exchange",
+            "from_currency": "INR",
+            "to_currency": "CNY",
+            "exchange_rate": 0.088,
+            "conversion_rate": 1 / 0.088,
+            "effective_date": today,
+        }).insert(ignore_if_duplicate=True)
+
+        frappe.get_doc({
+            "doctype": "Currency Exchange",
+            "from_currency": "CNY",
+            "to_currency": "INR",
+            "exchange_rate": 11.36,
+            "conversion_rate": 1 / 11.36,
+            "effective_date": today,
+        }).insert(ignore_if_duplicate=True)
 
         # 顶层 Item Group
         if not frappe.db.exists("Item Group", "All Item Groups"):
@@ -145,7 +164,6 @@ class TestImportOrders(FrappeTestCase):
             "insert_after": "item_code",
             "unique": 0, # 如果这个 SKU 可能重复，unique 设为 0
         })
-        frappe.db.commit() # 提交更改
 
         # 商品
         if not frappe.db.exists("Item", "测试商品"):
