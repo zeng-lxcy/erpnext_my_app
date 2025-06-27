@@ -17,7 +17,7 @@ def import_orders(file_url: str, platform: str = "amazon"):
     result = {
             "status": "success",
             "platform": platform,
-            "imported_count": orders.count
+            "imported_count": len(orders)
     }
     logger.info(f"Imported {len(orders)} orders from {platform} platform.")
     return result
