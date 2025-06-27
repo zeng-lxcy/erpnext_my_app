@@ -8,6 +8,8 @@ TERRITORY_DEFAULT = "Japan"
 
 class OrderImporter:
     def __init__(self, platform: str):
+		# 根据仓库名称查找仓库
+        self.warehouse = frappe.get_value("Warehouse", {"warehouse_name": WAREHOUSE_NAME_DEFAULT}, "name")
         self.platform = platform
 
     def import_orders(self, file_url: str):
@@ -100,7 +102,7 @@ class OrderImporter:
 			"shipping_address": shipping_address.name,
             "contact_person": contact.name,
 			"currency": "CNY",
-			#"set_warehouse": WAREHOUSE_NAME_DEFAULT,
+			"set_warehouse": self.warehouse,
             "status": "Draft"
         }
         so = frappe.get_doc(so_data)
