@@ -37,7 +37,7 @@ class TestImportOrders(FrappeTestCase):
                 "doctype": "Company",
                 "company_name": "龍越商事株式会社",
                 "abbr": "RYUETSU",
-                "default_currency": "CNY",  # 必填，按你需要修改
+                "default_currency": "INR",  # 必填，按你需要修改
                 "country": "China"          # 必填，按你需要修改
             }).insert()
             # 创建地址并关联到公司
@@ -127,7 +127,7 @@ class TestImportOrders(FrappeTestCase):
             "is_group": 0 # 如果它不是一个组
         }).insert(ignore_if_duplicate=True)
         frappe.db.commit() # 确保提交到测试数据库
-        
+
         # 顶层 Item Group
         if not frappe.db.exists("Item Group", "All Item Groups"):
             frappe.get_doc({
