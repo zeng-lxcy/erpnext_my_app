@@ -30,18 +30,9 @@ class TestImportOrders(FrappeTestCase):
                 "date": frappe.utils.nowdate()
             }).insert()
 
-        # 确保默认仓库类型存在
-        for wt in ["线上天瞳"]:
-            if not frappe.db.exists("Warehouse Type", wt):
-                frappe.get_doc({
-                    "doctype": "Warehouse Type",
-                    "warehouse_type_name": wt,
-                    "name": wt
-                }).insert()
-
         # 确保公司存在
         if not frappe.db.exists("Company", "龍越商事株式会社"):
-            frappe.get_doc({
+            company = frappe.get_doc({
                 "doctype": "Company",
                 "company_name": "龍越商事株式会社",
                 "abbr": "RYUETSU",
@@ -65,6 +56,25 @@ class TestImportOrders(FrappeTestCase):
                 }]
             }).insert()
             print("✅ 公司地址已创建：", company_address.name)
+
+        # 确保默认仓库类型存在
+        for wt in ["Transit", "Stores", "Raw Material", "Finished Goods", "Scrap"]:
+            if not frappe.db.exists("Warehouse Type", wt):
+                frappe.get_doc({
+                    "doctype": "Warehouse Type",
+                    "warehouse_type_name": wt,
+                    "name": wt
+                }).insert()
+
+        # 这里添加了一个新的仓库类型 "线上天瞳"，用于测试  
+        for wt in ["线上天瞳"]:
+            if not frappe.db.exists("Warehouse", wt):
+                frappe.get_doc({
+                    "doctype": "Warehouse",
+                    "warehouse_name": wt,
+                    "company": company.name,
+                    "name": wt
+                }).insert()
 
         # 确保默认地址模板存在
         if not frappe.db.exists("Address Template", "China"):
