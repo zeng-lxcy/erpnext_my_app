@@ -73,7 +73,7 @@ class TestImportOrders(FrappeTestCase):
                 frappe.get_doc({
                     "doctype": "Warehouse",
                     "warehouse_name": wt,
-                    "company": company.name,
+                    "company": "龍越商事株式会社",
                     "name": wt
                 }).insert()
 
