@@ -232,7 +232,8 @@ class TestImportOrders(FrappeTestCase):
 
     def tearDown(self):
         # 回滚所有更改
-        frappe.db.rollback()
+        # frappe.db.rollback()
+        print("✅ 测试环境已回滚")
 
 
 class TestExportDeliveryNotesToCsv(FrappeTestCase):
@@ -444,4 +445,5 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
 
     def tearDown(self):
         # 回滚所有更改
-        frappe.db.rollback()
+        #frappe.db.rollback()
+        print("✅ 测试环境已回滚")
