@@ -68,7 +68,7 @@ class OrderImporter:
                 postal_code=shipping_address_info.get("pincode"),
                 state=shipping_address_info.get("state")
             ),
-            "country": shipping_address_info.get("country", ""),
+            "country": "Japan",
             "phone": customer_info.get("phone"),
             "email_id": customer_info.get("email"),
 			"links": [{"link_doctype": "Customer", "link_name": customer.name}]
