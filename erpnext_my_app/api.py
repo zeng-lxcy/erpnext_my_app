@@ -51,6 +51,9 @@ def export_delivery_notes_to_csv(sale_order_ids):
             distinct=True
         )
         for dn in dn_list:
+            # 忽略未提交的发货单
+            if dn.status != "comitted":
+                continue
             #for field, value in dn.as_dict().items():
             #    print(f"{field}: {value}")
 
