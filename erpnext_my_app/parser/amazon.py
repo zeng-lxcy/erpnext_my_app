@@ -43,7 +43,7 @@ class AmazonOrderParser:
 
             items = []
             for row in rows:
-                # 在数据库根据商品 SKU 或 ASIN 查找商品编码
+                # 依据商品 SKU 或 ASIN 查找商品编码（一个商品对应多个亚马逊的SKU）
                 item_code = frappe.db.get_value(
                     "Item",
                     filters={"custom_amazon_sku": ["like", f"%{row.get('sku')}%"]},
@@ -57,13 +57,13 @@ class AmazonOrderParser:
                     )
                     items.append({
                         "item_code": item_code, # 商品代码
-                        "description": row.get("sku") or "", # 商品 SKU
                         "item_name": item_name,
+                        "description": row.get("sku") or "", # 商品 SKU
                         "qty": cint(row.get("quantity-purchased", 1)), # 购买数量，转换为整数
                         "rate": flt(row.get("item-price", 0)) or 0, # 商品单价，转换为浮点数
-						#"warehouse": WAREHOUSE_DEFAULT, # 默认仓库
                         "stock_uom": "Nos",
 						"conversion_factor": 1.0
+						#"warehouse": WAREHOUSE_DEFAULT, # 默认仓库
                     })
             
             transaction_date_raw = first_row.get("purchase-date")

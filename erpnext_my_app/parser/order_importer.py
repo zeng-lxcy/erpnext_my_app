@@ -37,9 +37,9 @@ class OrderImporter:
         transaction_date = order_data.get("transaction_date")
         delivery_date = order_data.get("delivery_date")
 
-        # 检查订单是否已经存在
+        # 检查订单是否已经存在或者找不到商品（有可能通过sku找不到对应商品）
         existing_so = frappe.db.exists("Sales Order", {"amazon_order_id": order_id})
-        if existing_so:
+        if existing_so or len(items) == 0:
             return None
 			
         # 创建客户

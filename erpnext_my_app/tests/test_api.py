@@ -224,7 +224,6 @@ class TestImportOrders(FrappeTestCase):
         # 回滚所有更改
         frappe.db.rollback()
 
-
 class TestExportDeliveryNotesToCsv(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
