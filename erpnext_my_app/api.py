@@ -34,7 +34,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
             # 前端有时会把 list 转成 JSON 字符串传过来
             sale_order_ids = json.loads(sale_order_ids)
         except Exception:
-            sale_order_ids = sale_order_ids.split(",")  # 应急方式
+            sale_order_ids = sale_order_ids.strip("[]").replace('"', '').split(",")  # 保底 fallback
 
     output = StringIO()
     writer = csv.writer(output)
