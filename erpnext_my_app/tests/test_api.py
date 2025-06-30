@@ -428,7 +428,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
         }).insert()
 
         # 6. 调用 API
-        result = frappe.call("erpnext_my_app.api.export_delivery_notes_to_csv", [sales_order.name])
+        result = frappe.call("erpnext_my_app.api.export_delivery_notes_to_csv", sale_order_ids=[f"'{sales_order.name}'"])
         expected_result = {
                 "status": "success",
                 "file_url": result["file_url"],
