@@ -218,7 +218,7 @@ class TestImportOrders(FrappeTestCase):
 
         # 2. 验证结果
         self.assertEqual(expected_result, result)
-        print(f"亚马逊订单成功导入数：{result["imported_count"]}")
+        #print(f"亚马逊订单成功导入数：{result["imported_count"]}")
 
     def tearDown(self):
         # 回滚所有更改
@@ -428,7 +428,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
         }
         # 7. 验证导出结果
         self.assertEqual(expected_result, result)
-        print(f"发货 CSV 文件已生成：{result["file_url"]}")
+        #print(f"发货 CSV 文件已生成：{result["file_url"]}")
 
     def tearDown(self):
         # 回滚所有更改
