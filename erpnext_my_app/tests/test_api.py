@@ -348,6 +348,14 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "uom_name": "Nos"
             }).insert()
 
+        # 确保 custom_amazon_order_id 字段存在
+        create_custom_field("Sale Order", {
+            "fieldname": "custom_amazon_order_id",
+            "label": "Amazon Order ID",
+            "fieldtype": "Data",
+            "unique": 1,
+        })
+
     def test_export_delivery_notes_to_csv(self):
         # 1. 创建客户
         customer = frappe.get_doc({
