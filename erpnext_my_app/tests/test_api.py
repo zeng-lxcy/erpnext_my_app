@@ -208,7 +208,6 @@ class TestImportOrders(FrappeTestCase):
         return file_doc.file_url
 
     def test_import_orders(self):
-        print("开始导入亚马逊订单...")
         # 1. 调用 API
         result = frappe.call("erpnext_my_app.api.import_orders", self.file_url, platform="amazon")
         expected_result = {
@@ -219,7 +218,7 @@ class TestImportOrders(FrappeTestCase):
 
         # 2. 验证结果
         self.assertEqual(expected_result, result)
-        print("亚马逊订单成功导入数：", result["imported_count"])
+        print(f"亚马逊订单成功导入数：{result["imported_count"]}")
 
     def tearDown(self):
         # 回滚所有更改
@@ -429,7 +428,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
         }
         # 7. 验证导出结果
         self.assertEqual(expected_result, result)
-        print("发货 CSV 文件已生成：", result["file_url"])
+        print(f"发货 CSV 文件已生成：{result["file_url"]}")
 
     def tearDown(self):
         # 回滚所有更改
