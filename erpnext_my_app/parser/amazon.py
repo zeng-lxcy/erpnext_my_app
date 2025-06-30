@@ -12,8 +12,6 @@ class AmazonOrderParser:
     def _fetch_content_from_file_doc(self):
         """Fetches and decodes content from a file attached in the File DocType (self.file_url)."""
         try:
-            print(f"Fetching file using get_file: {self.file_url}...")
-
             file_path, file_content = get_file(self.file_url)
 
             if file_content:
