@@ -61,7 +61,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
             company = frappe.get_doc("Company", so.company)
             amazon_order_id = so.amazon_order_id or ""
 
-            for item in dn.items:
+            for item in dn.get("items", []):
                 writer.writerow([
                     dn.name, amazon_order_id,
                     customer_name, customer_phone, dn.contact_person, dn.contact_mobile,
