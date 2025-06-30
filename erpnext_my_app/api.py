@@ -78,7 +78,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
     # 保存为 Frappe 文件
     filename = "delivery_export.csv"
     file_content = output.getvalue()
-    print(file_content)  # 读取并解码为字符串打印
+    #print(file_content)  # 读取并解码为字符串打印
     output.close()
 
     file_doc = save_file(filename, file_content.encode("utf-8"), None, "", is_private=0)
