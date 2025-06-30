@@ -28,8 +28,8 @@ def export_delivery_notes_to_csv(sale_order_ids):
     sale_order_ids: 逗号分隔的 Delivery Note ID 字符串
     """
 
-    if isinstance(sale_order_ids, str):
-        sale_order_ids = sale_order_ids.split(",")
+    #if isinstance(sale_order_ids, str):
+    #    sale_order_ids = sale_order_ids.split(",")
 
     output = StringIO()
     writer = csv.writer(output)
