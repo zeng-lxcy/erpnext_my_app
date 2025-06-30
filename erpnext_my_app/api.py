@@ -43,6 +43,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
     ])
 
     for so_id in sale_order_ids:
+        print(f"Processing Sales Order ID: {so_id}")
         so = frappe.get_doc("Sales Order", so_id)
         dn_list = frappe.get_all(
             "Delivery Note Item",
