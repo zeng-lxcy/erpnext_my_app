@@ -23,7 +23,7 @@ class TestImportOrders(FrappeTestCase):
                 "country": "Japan"          # 必填，按你需要修改
             }).insert()
             # 创建地址并关联到公司
-            company_address = frappe.get_doc({
+            frappe.get_doc({
                 "doctype": "Address",
                 "address_title": "龍越商事株式会社 - Shipping",
                 "address_type": "Shipping",
@@ -38,7 +38,6 @@ class TestImportOrders(FrappeTestCase):
                     "link_name": "龍越商事株式会社"
                 }]
             }).insert()
-            print("✅ 公司地址已创建：", company_address.name)
 
         # 创建价格表
         if not frappe.db.exists("Price List", "Standard Selling"):
@@ -203,7 +202,7 @@ class TestImportOrders(FrappeTestCase):
             "attached_to_name": None,
         })
         file_doc.insert(ignore_permissions=True)
-        print("亚马逊订单测试文件创建成功：", file_path)
+        #print("亚马逊订单测试文件创建成功：", file_path)
 
         # 3. 返回可用于 get_file 的 file_url
         return file_doc.file_url
