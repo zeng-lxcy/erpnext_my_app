@@ -23,13 +23,13 @@ def import_orders(file_url: str, platform: str = "amazon"):
     return result
 
 @frappe.whitelist()
-def export_delivery_notes_to_csv(delivery_note_ids):
+def export_delivery_notes_to_csv(sale_order_ids):
     """
-    delivery_note_ids: 逗号分隔的 Delivery Note ID 字符串
+    sale_order_ids: 逗号分隔的 Delivery Note ID 字符串
     """
 
-    if isinstance(delivery_note_ids, str):
-        delivery_note_ids = delivery_note_ids.split(",")
+    if isinstance(sale_order_ids, str):
+        sale_order_ids = sale_order_ids.split(",")
 
     output = StringIO()
     writer = csv.writer(output)
@@ -42,32 +42,37 @@ def export_delivery_notes_to_csv(delivery_note_ids):
         "发货地址明细", "发货城市", "发货省份", "发货邮编"
     ])
 
-    for dn_id in delivery_note_ids:
-        dn = frappe.get_doc("Delivery Note", dn_id)
+    for so_id in sale_order_ids:
+        dn_list = frappe.get_all(
+            "Delivery Note Item",
+            filters={"against_sales_order": so_id},
+            fields=["parent"],
+            distinct=True
+        )
+        for dn in dn_list:
+            #for field, value in dn.as_dict().items():
+            #    print(f"{field}: {value}")
 
-        #for field, value in dn.as_dict().items():
-        #    print(f"{field}: {value}")
+            customer_name = dn.customer
+            customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
+            shipping_address_name = dn.shipping_address_name
+            shipping_address = frappe.get_doc("Address", shipping_address_name)
+            company = frappe.get_doc("Company", dn.company)
 
-        customer_name = dn.customer
-        customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
-        shipping_address_name = dn.shipping_address_name
-        shipping_address = frappe.get_doc("Address", shipping_address_name)
-        company = frappe.get_doc("Company", dn.company)
+            amazon_order_id = ""
+            if dn.items and dn.items[0].against_sales_order:
+                sales_order = frappe.get_doc("Sales Order", dn.items[0].against_sales_order)
+                amazon_order_id = sales_order.get("amazon_order_id", "amazon_order_id")
 
-        amazon_order_id = ""
-        if dn.items and dn.items[0].against_sales_order:
-            sales_order = frappe.get_doc("Sales Order", dn.items[0].against_sales_order)
-            amazon_order_id = sales_order.get("amazon_order_id", "amazon_order_id")
-
-        for item in dn.items:
-            writer.writerow([
-                dn.name, amazon_order_id,
-                customer_name, customer_phone, dn.contact_person, dn.contact_mobile,
-                shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
-                item.item_name, item.qty,
-                company.get_formatted("company_name"), "0896-22-4988",
-                "津根2840", "四国中央市", "爱媛县", "799-0721"
-            ])
+            for item in dn.items:
+                writer.writerow([
+                    dn.name, amazon_order_id,
+                    customer_name, customer_phone, dn.contact_person, dn.contact_mobile,
+                    shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
+                    item.item_name, item.qty,
+                    company.get_formatted("company_name"), "0896-22-4988",
+                    "津根2840", "四国中央市", "爱媛县", "799-0721"
+                ])
 
     # 保存为 Frappe 文件
     filename = "delivery_export.csv"
