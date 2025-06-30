@@ -3,6 +3,7 @@ import frappe
 from io import StringIO
 from frappe.utils.file_manager import save_file
 from erpnext_my_app.parser.order_importer import OrderImporter
+import json
 
 logger = frappe.logger("erpnext_my_app")
 
@@ -29,7 +30,11 @@ def export_delivery_notes_to_csv(sale_order_ids):
     """
 
     if isinstance(sale_order_ids, str):
-        sale_order_ids = sale_order_ids.split(",")
+        try:
+            # 前端有时会把 list 转成 JSON 字符串传过来
+            sale_order_ids = json.loads(sale_order_ids)
+        except Exception:
+            sale_order_ids = sale_order_ids.split(",")  # 应急方式
 
     output = StringIO()
     writer = csv.writer(output)
