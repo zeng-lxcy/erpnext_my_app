@@ -43,6 +43,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
     ])
 
     for so_id in sale_order_ids:
+        so = frappe.get_doc("Sales Order", so_id)
         dn_list = frappe.get_all(
             "Delivery Note Item",
             filters={"against_sales_order": so_id},
@@ -55,14 +56,13 @@ def export_delivery_notes_to_csv(sale_order_ids):
 
             customer_name = dn.customer
             customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
-            shipping_address_name = dn.shipping_address_name
+            shipping_address_name = so.shipping_address_name or dn.shipping_address_name
             shipping_address = frappe.get_doc("Address", shipping_address_name)
             company = frappe.get_doc("Company", dn.company)
 
             amazon_order_id = ""
             if dn.items and dn.items[0].against_sales_order:
-                sales_order = frappe.get_doc("Sales Order", dn.items[0].against_sales_order)
-                amazon_order_id = sales_order.get("amazon_order_id", "amazon_order_id")
+                amazon_order_id = so.amazon_order_id or ""
 
             for item in dn.items:
                 writer.writerow([
