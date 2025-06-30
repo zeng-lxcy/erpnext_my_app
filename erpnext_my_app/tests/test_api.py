@@ -203,7 +203,7 @@ class TestImportOrders(FrappeTestCase):
             "attached_to_name": None,
         })
         file_doc.insert(ignore_permissions=True)
-        print("✅ 亚马逊订单测试文件已创建：", file_path)
+        print("亚马逊订单测试文件创建成功：", file_path)
 
         # 3. 返回可用于 get_file 的 file_url
         return file_doc.file_url
@@ -286,7 +286,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "country": "China"          # 必填，按你需要修改
             }).insert()
             # 创建地址并关联到公司
-            company_address = frappe.get_doc({
+            frappe.get_doc({
                 "doctype": "Address",
                 "address_title": "Test Company - Shipping",
                 "address_type": "Shipping",
@@ -301,7 +301,6 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                     "link_name": "Test Company"
                 }]
             }).insert()
-            print("✅ 公司地址已创建：", company_address.name)
 
         # 确保默认地址模板存在
         if not frappe.db.exists("Address Template", "China"):
