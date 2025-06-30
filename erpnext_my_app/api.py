@@ -59,10 +59,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
             shipping_address_name = so.shipping_address_name or dn.shipping_address_name
             shipping_address = frappe.get_doc("Address", shipping_address_name)
             company = frappe.get_doc("Company", so.company)
-
-            amazon_order_id = ""
-            if dn.items and dn.items[0].against_sales_order:
-                amazon_order_id = so.amazon_order_id or ""
+            amazon_order_id = so.amazon_order_id or ""
 
             for item in dn.items:
                 writer.writerow([
