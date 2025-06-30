@@ -58,7 +58,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
             customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
             shipping_address_name = so.shipping_address_name or dn.shipping_address_name
             shipping_address = frappe.get_doc("Address", shipping_address_name)
-            company = frappe.get_doc("Company", dn.company)
+            company = frappe.get_doc("Company", so.company)
 
             amazon_order_id = ""
             if dn.items and dn.items[0].against_sales_order:
