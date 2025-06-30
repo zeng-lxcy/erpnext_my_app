@@ -11,31 +11,11 @@ class TestImportOrders(FrappeTestCase):
         
         frappe.set_user("Administrator")
 
-        # 创建价格表
-        if not frappe.db.exists("Price List", "Standard Selling"):
-            frappe.get_doc({
-                "doctype": "Price List",
-                "name": "Standard Selling",
-                "price_list_name": "Standard Selling",
-                "selling": 1,
-                "currency": "JPY"
-            }).insert()
-
-        # 确保汇率存在
-        if not frappe.db.exists("Currency Exchange", {"from_currency": "INR", "to_currency": "JPY"}):
-            frappe.get_doc({
-                "doctype": "Currency Exchange",
-                "from_currency": "INR",
-                "to_currency": "JPY",
-                "exchange_rate": 0.085,  # 设置一个合理的汇率
-                "date": frappe.utils.nowdate()
-            }).insert()
-
         # 确保公司存在
         if frappe.db.exists("Company", "龍越商事株式会社"):
             frappe.delete_doc("Company", "龍越商事株式会社", force=True)
         if not frappe.db.exists("Company", "龍越商事株式会社"):
-            company = frappe.get_doc({
+            frappe.get_doc({
                 "doctype": "Company",
                 "company_name": "龍越商事株式会社",
                 "abbr": "RYUETSU",
@@ -60,6 +40,16 @@ class TestImportOrders(FrappeTestCase):
             }).insert()
             print("✅ 公司地址已创建：", company_address.name)
 
+        # 创建价格表
+        if not frappe.db.exists("Price List", "Standard Selling"):
+            frappe.get_doc({
+                "doctype": "Price List",
+                "name": "Standard Selling",
+                "price_list_name": "Standard Selling",
+                "selling": 1,
+                "currency": "JPY"
+            }).insert()
+
         # 确保默认仓库类型存在
         for wt in ["Transit", "Stores", "Raw Material", "Finished Goods", "Scrap"]:
             if not frappe.db.exists("Warehouse Type", wt):
@@ -69,7 +59,7 @@ class TestImportOrders(FrappeTestCase):
                     "name": wt
                 }).insert()
 
-        # 这里添加了一个新的仓库类型 "线上天瞳"，用于测试  
+        # 这里添加了一个新的仓库 "线上天瞳"，用于测试  
         for wt in ["线上天瞳"]:
             if not frappe.db.exists("Warehouse", wt):
                 frappe.get_doc({
@@ -186,8 +176,7 @@ class TestImportOrders(FrappeTestCase):
                 "doctype": "UOM",
                 "uom_name": "Nos"
             }).insert()
-        
-        print("✅ 测试环境已准备就绪")
+ 
 
     def fetchFileContent(self, url: str):
         try:
@@ -195,7 +184,7 @@ class TestImportOrders(FrappeTestCase):
             resp.raise_for_status()
             return resp.content.decode("shift_jis", errors="replace")
         except Exception as e:
-            print(f"Error downloading or decoding file: {e}")
+            print(f"获取亚马逊订单测试文件内容{url}失败: {e}")
             return ""
     
     def createTestFile(self, url):
@@ -214,7 +203,7 @@ class TestImportOrders(FrappeTestCase):
             "attached_to_name": None,
         })
         file_doc.insert(ignore_permissions=True)
-        print("✅ 测试文件已创建：", file_path)
+        print("✅ 亚马逊订单测试文件已创建：", file_path)
 
         # 3. 返回可用于 get_file 的 file_url
         return file_doc.file_url
@@ -235,8 +224,7 @@ class TestImportOrders(FrappeTestCase):
 
     def tearDown(self):
         # 回滚所有更改
-        # frappe.db.rollback()
-        print("✅ 测试环境已回滚")
+        frappe.db.rollback()
 
 
 class TestExportDeliveryNotesToCsv(FrappeTestCase):
@@ -323,7 +311,6 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
                 "is_default": 1,
                 "name": "China"  # Address Template 的主键是 name，通常等于 country
             }).insert()
-
 
         # 顶层 Customer Group
         if not frappe.db.exists("Customer Group", "All Customer Groups"):
@@ -448,5 +435,4 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
 
     def tearDown(self):
         # 回滚所有更改
-        #frappe.db.rollback()
-        print("✅ 测试环境已回滚")
+        frappe.db.rollback()
