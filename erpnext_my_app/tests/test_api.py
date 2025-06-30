@@ -349,7 +349,7 @@ class TestExportDeliveryNotesToCsv(FrappeTestCase):
             }).insert()
 
         # 确保 custom_amazon_order_id 字段存在
-        create_custom_field("Sale Order", {
+        create_custom_field("Sales Order", {
             "fieldname": "custom_amazon_order_id",
             "label": "Amazon Order ID",
             "fieldtype": "Data",
