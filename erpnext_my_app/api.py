@@ -29,6 +29,8 @@ def export_delivery_notes_to_csv(sale_order_ids):
     sale_order_ids: 逗号分隔的 Delivery Note ID 字符串
     """
 
+    #logger.info(f"Calling export_delivery_notes_to_csv with sale_order_ids: {sale_order_ids}")
+
     if isinstance(sale_order_ids, str):
         try:
             # 前端有时会把 list 转成 JSON 字符串传过来
@@ -57,7 +59,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
         for dn_name in dn_names:
             dn = frappe.get_doc("Delivery Note", dn_name)
             # 忽略未提交的发货单
-            if dn.status != "comitted":
+            if dn.status != "Submitted":
                 continue
             #for field, value in dn.as_dict().items():
             #    print(f"{field}: {value}")
@@ -85,10 +87,11 @@ def export_delivery_notes_to_csv(sale_order_ids):
     #print(file_content)  # 读取并解码为字符串打印
     output.close()
 
+    #file_doc = save_file(filename, file_content.encode("shift_jis", errors="replace"), None, "", is_private=0)
     file_doc = save_file(filename, file_content.encode("utf-8"), None, "", is_private=0)
     result = {
             "status": "success",
             "file_url": file_doc.file_url,
     }
-    logger.info(f"Exported delivery notes to {file_doc.file_url}")
+    #logger.info(f"Exported delivery notes to {file_doc.file_url}")
     return result
