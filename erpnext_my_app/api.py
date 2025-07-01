@@ -14,7 +14,7 @@ def hello():
 @frappe.whitelist()
 def import_orders(file_url: str, platform: str = "amazon"):
     importer = OrderImporter(platform)
-    orders = importer.import_orders(file_url, platform)
+    orders = importer.import_orders(file_url)
     result = {
             "status": "success",
             "platform": platform,
