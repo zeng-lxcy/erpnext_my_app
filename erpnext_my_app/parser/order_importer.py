@@ -14,7 +14,7 @@ class OrderImporter:
 
     def import_orders(self, file_url: str):
         # 根据电商平台创建对应的订单解析器
-        parser_module = f"erpnext_my_app.parser.order_importer"
+        parser_module = f"erpnext_my_app.parser.{self.platform}"
         parser_class_name = f"{self.platform.capitalize()}OrderParser"
         parser_module = importlib.import_module(parser_module)
         parser_class = getattr(parser_module, parser_class_name)
