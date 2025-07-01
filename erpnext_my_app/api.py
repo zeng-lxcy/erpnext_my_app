@@ -66,7 +66,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
 
             customer_name = dn.customer
             customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
-            shipping_address_name = so.shipping_address_name or dn.shipping_address_name
+            shipping_address_name = so.shipping_address_name or so.customer_address
             shipping_address = frappe.get_doc("Address", shipping_address_name)
             company = frappe.get_doc("Company", so.company)
             amazon_order_id = so.amazon_order_id or ""
