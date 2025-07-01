@@ -75,7 +75,7 @@ def export_delivery_notes_to_csv(sale_order_ids):
             for item in dn.get("items", []):
                 writer.writerow([
                     dn.name, amazon_order_id,
-                    customer_name, customer_phone, contact, dn.contact_mobile,
+                    customer_name, customer_phone, contact, shipping_address.get_formatted("phone"),
                     shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
                     item.item_name, item.qty,
                     company.get_formatted("company_name"), "0896-22-4988",
