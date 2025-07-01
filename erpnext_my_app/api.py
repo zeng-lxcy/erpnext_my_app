@@ -59,12 +59,12 @@ def export_delivery_notes_to_csv(sale_order_ids):
         for dn_name in dn_names:
             dn = frappe.get_doc("Delivery Note", dn_name)
             # 忽略未提交的发货单
-            #if dn.status != "Submitted":
-            #    continue
+            if dn.docstatus != 1:
+                continue
             #for field, value in dn.as_dict().items():
             #    print(f"{field}: {value}")
 
-            customer_name = dn.customer
+            customer_name = frappe.db.get_value("Customer", dn.customer, "customer_name") or ""
             customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
             shipping_address_name = so.shipping_address_name or so.customer_address
             shipping_address = frappe.get_doc("Address", shipping_address_name)
