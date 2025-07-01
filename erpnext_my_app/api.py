@@ -59,8 +59,8 @@ def export_delivery_notes_to_csv(sale_order_ids):
         for dn_name in dn_names:
             dn = frappe.get_doc("Delivery Note", dn_name)
             # 忽略未提交的发货单
-            if dn.status != "Submitted":
-                continue
+            #if dn.status != "Submitted":
+            #    continue
             #for field, value in dn.as_dict().items():
             #    print(f"{field}: {value}")
 
