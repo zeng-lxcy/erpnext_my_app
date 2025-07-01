@@ -38,7 +38,10 @@ class OrderImporter:
         delivery_date = order_data.get("delivery_date")
 
         # 检查订单是否已经存在或者找不到商品（有可能通过sku找不到对应商品）
-        existing_so = frappe.db.exists("Sales Order", {"amazon_order_id": order_id})
+        existing_so = frappe.db.exists("Sales Order", {
+			"amazon_order_id": order_id,
+			"docstatus": 1
+		})
         if existing_so or len(items) == 0:
             return None
 			
@@ -102,12 +105,11 @@ class OrderImporter:
 			"shipping_address": shipping_address.name,
             "contact_person": contact.name,
 			"currency": "JPY",
-			"set_warehouse": self.warehouse,
-            "status": "Draft"
+			"set_warehouse": self.warehouse
         }
         so = frappe.get_doc(so_data)
         so.insert()
-        so.submit()
+        #so.submit()
         return so
 
 def get_state_name_from_pincode(country_code=None, postal_code=None, state=None):

@@ -60,7 +60,7 @@ class AmazonOrderParser:
                         "item_name": item_name,
                         "description": row.get("sku") or "", # 商品 SKU
                         "qty": cint(row.get("quantity-purchased", 1)), # 购买数量，转换为整数
-                        "rate": flt(row.get("item-price", 0)) or 0, # 商品单价，转换为浮点数
+                        "rate": cint(row.get("points-granted", 0)) or 0, # 商品单价，转换为浮点数
                         "stock_uom": "Nos",
 						"conversion_factor": 1.0
 						#"warehouse": WAREHOUSE_DEFAULT, # 默认仓库
