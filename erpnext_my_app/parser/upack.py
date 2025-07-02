@@ -12,19 +12,22 @@ class UpackParser:
         self.content = self._fetch_content_from_file_doc() # 调用方法获取内容
 
     def _fetch_content_from_file_doc(self):
-        """Fetches and decodes content from a file attached in the File DocType (self.file_url)."""
+        """Fetch UTF-8 content from attached File DocType (self.file_url)."""
         try:
             file_path, file_content = get_file(self.file_url)
 
-            if file_content:
-                return file_content.decode("utf-8", errors="replace")
+            if isinstance(file_content, bytes):
+                return file_content.decode("utf-8")  # 明确按 UTF-8 解码
+            elif isinstance(file_content, str):
+                return file_content  # 已是字符串，直接返回
             else:
-                logger.error(f"UpackParser: No content found in file: {self.file_url}")
+                logger.error(f"Unexpected file content type: {type(file_content)} from {self.file_url}")
                 return ""
 
         except Exception as e:
-            logger.error(f"UpackParser: Error fetching or decoding file from {self.file_url}: {e}")
+            logger.error(f"Error fetching or decoding file from {self.file_url}: {e}")
             return ""
+
 
     def parse(self):
         # StringIO(self.content) 可以处理空字符串，如果 _fetch_content_from_file_doc 返回空，这里也能正常运行
