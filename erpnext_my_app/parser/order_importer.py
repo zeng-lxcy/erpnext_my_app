@@ -44,7 +44,7 @@ class OrderImporter:
         #logger.error(f"Creating Sales Order for Amazon Order ID: {order_id}")
 		
         # 检查订单是否已经存在或者找不到商品（有可能通过sku找不到对应商品）
-        existing_so = frappe.db.exists("Sales Order", filters={
+        existing_so = frappe.exists("Sales Order", filters={
             "amazon_order_id": order_id,
             "docstatus": 1
         }, limit=1)
