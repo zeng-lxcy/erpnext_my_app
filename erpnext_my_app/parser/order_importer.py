@@ -6,6 +6,8 @@ COMPANY_NAME_DEFAULT = "龍越商事株式会社"
 WAREHOUSE_NAME_DEFAULT = "线上天瞳"
 TERRITORY_DEFAULT = "Japan"
 
+logger = frappe.logger("erpnext_my_app")
+
 class OrderImporter:
     def __init__(self, platform: str):
 		# 根据仓库名称查找仓库
@@ -37,7 +39,7 @@ class OrderImporter:
         transaction_date = order_data.get("transaction_date")
         delivery_date = order_data.get("delivery_date")
 
-        frappe.logger().warning(f"Creating Sales Order for Amazon Order ID: {order_id}")
+        logger.info(f"Creating Sales Order for Amazon Order ID: {order_id}")
 		
         # 检查订单是否已经存在或者找不到商品（有可能通过sku找不到对应商品）
         existing_so = frappe.db.exists("Sales Order", {
@@ -47,7 +49,7 @@ class OrderImporter:
         if existing_so or len(items) == 0:
             return None
 		
-        frappe.logger().warning(f"创建客户 for Amazon Order ID: {order_id}")
+        logger.info(f"创建客户 for Amazon Order ID: {order_id}")
         # 创建客户
         customer = frappe.get_doc({
             "doctype": "Customer",

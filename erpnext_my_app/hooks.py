@@ -5,6 +5,15 @@ app_description = "Integrates custom features into ERPNext"
 app_email = "zeng.lxcy@gmail.com"
 app_license = "MIT"
 
+
+# 日志配置
+app_logger_handlers = {
+    "erpnext_my_app": {
+        "log_file": f"{app_name}.log",
+        "log_level": "DEBUG"
+    }
+}
+
 # Apps
 # ------------------
 
