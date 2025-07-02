@@ -91,13 +91,16 @@ class DeliveryImporter:
         })
         
         # 添加 Shipment Parcel 信息
-        if hasattr(shipment, "items"):
-            for i in dn.items:
-                item = frappe.get_doc({
+        for i in dn.items:
+            logger.error(f"DeliveryImporter: Item code {i.item_name}.")
+            item = frappe.get_doc({
                     "doctype": "Item",
                     "item_name": i.item_name,
-                })
-                shipment.append("shipment_parcel", {
+            })
+            if not item:
+                logger.error(f"DeliveryImporter: Item {i.item_name} not found.")
+                continue
+            shipment.append("shipment_parcel", {
                     "description": item.name,
                     "qty": item.qty,
                     "weight": item.weight or 0.0,
@@ -106,7 +109,7 @@ class DeliveryImporter:
                     "width": item.width or 0.0,
                     "height": item.height or 0.0,
                     "dimension_uom": item.dimension_uom or "cm",
-                })
+            })
 
         shipment.insert(ignore_permissions=True)
         shipment.submit()
