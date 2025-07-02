@@ -70,7 +70,7 @@ class DeliveryImporter:
             "carrier": carrier,
             "awb_number": tracking_number,
             "shipment_date": getdate(shipping_date),
-            "shipment_type": "Outbound",  # 发出货物
+            "shipment_type": "Goods",  # 发出货物
             "pickup_contact_person": "",
             "pickup_contact_name": "",  # 提货联系人名称
             "pickup_address_name": dn.company_address,
