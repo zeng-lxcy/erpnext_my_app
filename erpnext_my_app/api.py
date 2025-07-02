@@ -169,7 +169,7 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
 
         for so_id in sale_order_ids:
             so = frappe.get_doc("Sales Order", so_id)
-            if len(so.items) == 0:
+            if not so or len(so.items) == 0:
                 continue
 
             # 1. 找出关联该销售订单的第一条出货单（一个销售订单可能对应多条销售出货，所以只取一条）
