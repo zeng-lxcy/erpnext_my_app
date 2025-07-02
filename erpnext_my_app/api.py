@@ -210,7 +210,7 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
             writer.writerow([
                 so.amazon_order_id or "",  # 亚马逊订单号
                 so.items[0].additional_notes,  # 商品 ASIN
-                sum(parcel.qty for parcel in shipment_doc.shipment_parcel),  # 出货数量，取第一条商品的数量
+                sum(parcel.count for parcel in shipment_doc.shipment_parcel),
                 shipment_doc.pickup_date or "",  # 出货日期
                 get_carrier_code(shipment_doc.carrier),  # 配送業者コード
                 "",  # 配送业者名称
