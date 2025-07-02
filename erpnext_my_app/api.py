@@ -44,7 +44,7 @@ def hello():
 
 @frappe.whitelist()
 def import_orders(file_url: str, platform: str = "amazon"):
-    logger.info("调用import_orders with file_url: %s and platform: %s", file_url, platform)
+    logger.warning("调用import_orders with file_url: %s and platform: %s", file_url, platform)
 
     importer = OrderImporter(platform)
     orders = importer.import_orders(file_url)
@@ -53,7 +53,7 @@ def import_orders(file_url: str, platform: str = "amazon"):
             "platform": platform,
             "imported_count": len(orders)
     }
-    logger.info(f"Imported {len(orders)} orders from {platform} platform.")
+    logger.error(f"Imported {len(orders)} orders from {platform} platform.")
     return result
 
 @frappe.whitelist()
