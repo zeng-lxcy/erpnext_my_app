@@ -44,8 +44,8 @@ def hello():
 
 @frappe.whitelist()
 def import_orders(file_url: str, platform: str = "amazon"):
-    logger.warning(f"Calling import_orders with file_url: {file_url} and platform: {platform}")
-    
+    frappe.logger().warning("Calling import_orders with file_url: {} and platform: {}".format(file_url, platform))
+
     importer = OrderImporter(platform)
     orders = importer.import_orders(file_url)
     result = {

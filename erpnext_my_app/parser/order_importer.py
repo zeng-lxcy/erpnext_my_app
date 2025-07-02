@@ -39,7 +39,7 @@ class OrderImporter:
         transaction_date = order_data.get("transaction_date")
         delivery_date = order_data.get("delivery_date")
 
-        logger.warning(f"Creating Sales Order for Amazon Order ID: {order_id}")
+        frappe.logger().warning(f"Creating Sales Order for Amazon Order ID: {order_id}")
 		
         # 检查订单是否已经存在或者找不到商品（有可能通过sku找不到对应商品）
         existing_so = frappe.db.exists("Sales Order", {
@@ -49,7 +49,7 @@ class OrderImporter:
         if existing_so or len(items) == 0:
             return None
 		
-        logger.warning(f"创建客户 for Amazon Order ID: {order_id}")
+        frappe.logger().warning(f"创建客户 for Amazon Order ID: {order_id}")
         # 创建客户
         customer = frappe.get_doc({
             "doctype": "Customer",
