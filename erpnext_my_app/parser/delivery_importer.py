@@ -17,7 +17,7 @@ class DeliveryImporter:
         parser = parser_class(file_url)
         orders = parser.parse()
 
-        logger.error(f"DeliveryImporter: Delivery parser has done: {len(orders)} records found.")
+        #logger.error(f"DeliveryImporter: Delivery parser has done: {len(orders)} records found.")
 
         # 将快递单号同步到ERPNext
         shippments = []
@@ -61,7 +61,7 @@ class DeliveryImporter:
         # 估算总价值（简单求和）
         total_value = sum([item.amount for item in dn.items])
 
-        logger.error(f"DeliveryImporter: Creating Shipment for Delivery Note {delivery_note_id} with tracking number {tracking_number}.")
+        #logger.error(f"DeliveryImporter: Creating Shipment for Delivery Note {delivery_note_id} with tracking number {tracking_number}.")
         # 创建 Shipment
         shipment = frappe.get_doc({
             "doctype": "Shipment",
@@ -92,7 +92,7 @@ class DeliveryImporter:
         
         # 添加 Shipment Parcel 信息
         for i in dn.items:
-            logger.error(f"DeliveryImporter: Item code {i.item_name}.")
+            #logger.error(f"DeliveryImporter: Item code {i.item_name}.")
             item = frappe.get_doc({
                     "doctype": "Item",
                     "item_name": i.item_name,
@@ -101,8 +101,8 @@ class DeliveryImporter:
                 logger.error(f"DeliveryImporter: Item {i.item_name} not found.")
                 continue
             shipment.append("shipment_parcel", {
-                    "description": item.name,
-                    "qty": item.qty,
+                    "description": i.item_name,
+                    "qty": i.qty,
                     "weight": item.weight or 0.0,
                     "weight_uom": item.weight_uom or "kg",
                     "length": item.length or 0.0,
