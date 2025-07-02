@@ -23,7 +23,7 @@ class OrderImporter:
         parser = parser_class(file_url)
         orders = parser.parse()
 
-        logger.error(f"orders parser has done: {len(orders)} orders found.")
+        #logger.error(f"orders parser has done: {len(orders)} orders found.")
 		
         # 将文件中的销售订单同步到ERPNext
         created_orders = []
@@ -41,14 +41,15 @@ class OrderImporter:
         transaction_date = order_data.get("transaction_date")
         delivery_date = order_data.get("delivery_date")
 
-        logger.error(f"Creating Sales Order for Amazon Order ID: {order_id}")
+        #logger.error(f"Creating Sales Order for Amazon Order ID: {order_id}")
 		
         # 检查订单是否已经存在或者找不到商品（有可能通过sku找不到对应商品）
-        existing_so = frappe.db.exists("Sales Order", {
-			"amazon_order_id": order_id,
-			"docstatus": 1
-		})
-        if existing_so or len(items) == 0:
+        existing_so = frappe.get_all("Sales Order", filters={
+            "amazon_order_id": order_id,
+            "docstatus": 1
+        }, limit=1)
+
+        if existing_so or not items:
             return None
 		
         logger.error(f"创建客户 for Amazon Order ID: {order_id}")
