@@ -9,7 +9,7 @@ logger = frappe.logger("erpnext_my_app")
 class UpackParser:
     def __init__(self, file_url): # 接受文件URL
         self.file_url = file_url
-        self.content = self._fetch_content_from_file_doc() # 调用方法获取内容
+        self.content = self._fetch_content_from_file_doc().lstrip("\ufeff") # 调用方法获取内容
 
     def _fetch_content_from_file_doc(self):
         """Fetch UTF-8 content from attached File DocType (self.file_url)."""
