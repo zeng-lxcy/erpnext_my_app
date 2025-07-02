@@ -6,8 +6,6 @@ COMPANY_NAME_DEFAULT = "龍越商事株式会社"
 WAREHOUSE_NAME_DEFAULT = "线上天瞳"
 TERRITORY_DEFAULT = "Japan"
 
-logger = frappe.get_logger("erpnext_my_app")
-
 class OrderImporter:
     def __init__(self, platform: str):
 		# 根据仓库名称查找仓库
