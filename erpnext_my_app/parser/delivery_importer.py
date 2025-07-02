@@ -100,12 +100,12 @@ class DeliveryImporter:
             shipment.append("shipment_parcel", {
                     "description": item.item_name,
                     "qty": i.qty,
-                    "weight": item.weight or 0.0,
+                    "weight": item.weight_per_unit or 0.0,
                     "weight_uom": item.weight_uom or "kg",
-                    "length": item.length or 0.0,
-                    "width": item.width or 0.0,
-                    "height": item.height or 0.0,
-                    "dimension_uom": item.dimension_uom or "cm",
+                    "length":  0.0,
+                    "width":  0.0,
+                    "height":  0.0,
+                    "dimension_uom": "cm",
             })
 
         shipment.insert(ignore_permissions=True)
