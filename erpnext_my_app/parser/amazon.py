@@ -58,7 +58,7 @@ class AmazonOrderParser:
                     items.append({
                         "item_code": item_code, # 商品代码
                         "item_name": item_name,
-                        #"additional_notes": row.get("order-item-id", ""), # 商品 ASIN
+                        "additional_notes": row.get("order-item-id", ""), # 商品 ASIN
                         "description": row.get("order-item-id") or "", # 商品 ASIN
                         "qty": cint(row.get("quantity-purchased", 1)), # 购买数量，转换为整数
                         "rate": cint(row.get("points-granted", 0)) or 0, # 商品单价，转换为浮点数
