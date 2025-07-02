@@ -93,15 +93,12 @@ class DeliveryImporter:
         # 添加 Shipment Parcel 信息
         for i in dn.items:
             #logger.error(f"DeliveryImporter: Item code {i.item_name}.")
-            item = frappe.get_doc({
-                    "doctype": "Item",
-                    "item_name": i.item_name,
-            })
+            item = frappe.get_doc("Item", i.item_code)
             if not item:
                 logger.error(f"DeliveryImporter: Item {i.item_name} not found.")
                 continue
             shipment.append("shipment_parcel", {
-                    "description": i.item_name,
+                    "description": item.item_name,
                     "qty": i.qty,
                     "weight": item.weight or 0.0,
                     "weight_uom": item.weight_uom or "kg",
