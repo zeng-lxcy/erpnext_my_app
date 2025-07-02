@@ -66,7 +66,10 @@ class AmazonOrderParser:
 						"conversion_factor": 1.0
 						#"warehouse": WAREHOUSE_DEFAULT, # 默认仓库
                     })
-            
+            # 如果没有找到商品，跳过这个订单
+            if not items:
+                continue
+
             transaction_date_raw = first_row.get("purchase-date")
             delivery_date_raw = first_row.get("promise-date")
             order = {
