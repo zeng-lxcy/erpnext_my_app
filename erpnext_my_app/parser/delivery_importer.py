@@ -71,8 +71,8 @@ class DeliveryImporter:
             "awb_number": tracking_number,
             "shipment_date": getdate(shipping_date),
             "shipment_type": "Outbound",  # 发出货物
-            "pickup_contact_person": dn.owner_display,
-            "pickup_contact_name": dn.owner,
+            "pickup_contact_person": "",
+            "pickup_contact_name": "",  # 提货联系人名称
             "pickup_address_name": dn.company_address,
             "pickup_date": getdate(dn.posting_date),
             "pickup_from": dn.posting_time,  # 提货起始时间
