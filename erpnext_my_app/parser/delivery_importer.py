@@ -102,9 +102,9 @@ class DeliveryImporter:
                     "qty": i.qty,
                     "weight": item.weight_per_unit <= 0.0 and 1.0 or item.weight_per_unit,  # 如果重量为0，则默认1kg
                     "weight_uom": item.weight_uom or "kg",
-                    "length":  0.0,
-                    "width":  0.0,
-                    "height":  0.0,
+                    "length":  10.0,
+                    "width":  10.0,
+                    "height":  10.0,
                     "dimension_uom": "cm",
             })
 
