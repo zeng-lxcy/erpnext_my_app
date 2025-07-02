@@ -117,7 +117,7 @@ class OrderImporter:
         }
         so = frappe.get_doc(so_data)
         so.insert()
-        #so.submit()
+        so.submit()
         return so
 
 def get_state_name_from_pincode(country_code=None, postal_code=None, state=None):
