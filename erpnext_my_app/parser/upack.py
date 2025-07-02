@@ -1,5 +1,6 @@
 import csv
 from io import StringIO
+import frappe
 from frappe.utils import getdate, nowdate # 假设这些工具函数可用
 from frappe.utils.file_manager import get_file # 正确的导入路径
 

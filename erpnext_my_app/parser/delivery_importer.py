@@ -61,6 +61,7 @@ class DeliveryImporter:
         # 估算总价值（简单求和）
         total_value = sum([item.amount for item in dn.items])
 
+        logger.error(f"DeliveryImporter: Creating Shipment for Delivery Note {delivery_note_id} with tracking number {tracking_number}.")
         # 创建 Shipment
         shipment = frappe.get_doc({
             "doctype": "Shipment",
