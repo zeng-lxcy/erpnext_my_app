@@ -40,8 +40,6 @@ class OrderImporter:
         order_id = order_data["order_id"]
         transaction_date = order_data.get("transaction_date")
         delivery_date = order_data.get("delivery_date")
-
-        #logger.error(f"Creating Sales Order for Amazon Order ID: {order_id}")
 		
         # 检查订单是否已经存在或者找不到商品（有可能通过sku找不到对应商品）
         existing_so = frappe.db.exists("Sales Order", {
@@ -49,11 +47,10 @@ class OrderImporter:
             "docstatus": 1
         })
 
-        if existing_so or not items:
-            logger.error(f"existing_so Order ID: {order_id} already exists{existing_so} or no items{len(items)} found.")
+        if existing_so or len(items) <= 0:
+            logger.error(f"Amazon order: {order_id} already exists. [Order ID:{existing_so}] or no items[{len(items)}] found.")
             return None
 		
-        logger.error(f"创建客户 for Amazon Order ID: {order_id}")
         # 创建客户
         customer = frappe.get_doc({
             "doctype": "Customer",
@@ -100,6 +97,9 @@ class OrderImporter:
         contact.flags.ignore_mandatory = True
         contact.insert(ignore_if_duplicate=True)
 
+        # 遍历商品列表，为其设置仓库
+        for item in items:
+            item["warehouse"] = self.warehouse
         # 创建销售订单
         so_data = {
             "doctype": "Sales Order",
@@ -113,8 +113,7 @@ class OrderImporter:
             "customer_address": shipping_address.name,
 			"shipping_address": shipping_address.name,
             "contact_person": contact.name,
-			"currency": "JPY",
-			"set_warehouse": self.warehouse
+			"currency": "JPY"
         }
         so = frappe.get_doc(so_data)
         so.insert()

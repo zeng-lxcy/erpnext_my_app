@@ -2,6 +2,8 @@ import frappe
 import importlib
 from frappe.utils import getdate
 
+logger = frappe.logger("erpnext_my_app")
+
 class DeliveryImporter:
     def __init__(self, carrier: str):
         self.carrier = carrier
@@ -14,6 +16,8 @@ class DeliveryImporter:
         parser_class = getattr(parser_module, parser_class_name)
         parser = parser_class(file_url)
         orders = parser.parse()
+
+        logger.error(f"DeliveryImporter: Delivery parser has done: {len(orders)} records found.")
 
         # 将快递单号同步到ERPNext
         shippments = []
@@ -34,6 +38,7 @@ class DeliveryImporter:
         
         # 检查发货单是否存在
         if not dn:
+            logger.error(f"DeliveryImporter: Delivery Note {delivery_note_id} not found.")
             return None
 
         order_id = dn.items[0].against_sales_order if dn.items else None
@@ -50,6 +55,7 @@ class DeliveryImporter:
             "docstatus": ["!=", 2]  # 不是已取消
         })
         if existing_shipment:
+            logger.error(f"DeliveryImporter: Shipment for Delivery Note {delivery_note_id} already exists.")
             return None
 
         # 估算总价值（简单求和）

@@ -3,6 +3,8 @@ from io import StringIO
 from frappe.utils import getdate, nowdate # 假设这些工具函数可用
 from frappe.utils.file_manager import get_file # 正确的导入路径
 
+logger = frappe.logger("erpnext_my_app")
+
 class UpackParser:
     def __init__(self, file_url): # 接受文件URL
         self.file_url = file_url
@@ -16,11 +18,11 @@ class UpackParser:
             if file_content:
                 return file_content.decode("utf-8", errors="replace")
             else:
-                print(f"Warning: No content found in file: {self.file_url}")
+                logger.error(f"UpackParser: No content found in file: {self.file_url}")
                 return ""
 
         except Exception as e:
-            print(f"Error fetching or decoding file from {self.file_url}: {e}")
+            logger.error(f"UpackParser: Error fetching or decoding file from {self.file_url}: {e}")
             return ""
 
     def parse(self):
@@ -30,6 +32,7 @@ class UpackParser:
         for row in reader:
             order_id = row.get("記事名１")
             if not order_id:
+                logger.error("UpackParser: Missing order-id in row, skipping.")
                 continue # 如果没有 order-id，跳过这一行
             raw_orders.setdefault(order_id, []).append(row)
 

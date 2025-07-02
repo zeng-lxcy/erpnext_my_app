@@ -139,7 +139,7 @@ def import_shipments_from_file(file_url: str, carrier: str = "upack"):
             "carrier": carrier,
             "imported_count": len(orders)
     }
-    logger.info(f"Imported {len(orders)} orders from {carrier} carrier.")
+    #logger.error(f"Imported {len(orders)} orders from {carrier} carrier.")
     return result
 
 @frappe.whitelist()
