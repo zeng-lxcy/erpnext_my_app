@@ -172,6 +172,7 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
         for so_id in sale_order_ids:
             so = frappe.get_doc("Sales Order", so_id)
             if not so or len(so.items) == 0:
+                logger.error(f"export_shipment_to_csv: Sales Order {so_id} not found or has no items.")
                 continue
 
             # 1. 找出关联该销售订单的第一条出货单（一个销售订单可能对应多条销售出货，所以只取一条）
@@ -183,6 +184,7 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
                 limit=1
             )
             if not delivery_note_item:
+                logger.error(f"export_shipment_to_csv: Delivery Note Item for Sales Order {so_id} not found.")
                 continue  # 如果没有找到出货单，跳过
 
             delivery_note_id = delivery_note_item[0]["parent"]
@@ -194,12 +196,14 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
                 limit=1
             )
             if not shipment_links:
+                logger.error(f"export_shipment_to_csv: Shipment link for Delivery Note {delivery_note_id} not found for Sales Order {so_id}.")
                 continue  # 如果没有找到出货单，跳过
 
             shipment_id = shipment_links[0]["parent"]
             # 3. 获取装运单的详细信息
             shipment_doc = frappe.get_doc("Shipment", shipment_id)
             if not shipment_doc:
+                logger.error(f"export_shipment_to_csv: Shipment document {shipment_id} not found for Sales Order {so_id}.") 
                 continue  # 如果没有找到装运单，跳过
             
             # 4. 将装运单信息输出到文件中
@@ -207,7 +211,7 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
                 so.amazon_order_id or "",  # 亚马逊订单号
                 so.items[0].additional_notes,  # 商品 ASIN
                 shipment_doc.get("items", [{}])[0].get("qty", 0),  # 出货数量，取第一条商品的数量
-                shipment_doc.posting_date or "",  # 出货日期
+                shipment_doc.pickup_date or "",  # 出货日期
                 get_carrier_code(shipment_doc.carrier),  # 配送業者コード
                 "",  # 配送业者名称
                 shipment_doc.tracking_number or "",  # 查询号码
