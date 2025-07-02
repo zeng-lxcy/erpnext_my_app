@@ -214,7 +214,7 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
                 shipment_doc.pickup_date or "",  # 出货日期
                 get_carrier_code(shipment_doc.carrier),  # 配送業者コード
                 "",  # 配送业者名称
-                shipment_doc.tracking_number or "",  # 查询号码
+                shipment_doc.awb_number or "",  # 查询号码
                 get_shipment_method(shipment_doc.carrier),  # 配送方法
                 ""
             ])  # 空行

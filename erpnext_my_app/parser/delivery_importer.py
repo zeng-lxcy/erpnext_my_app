@@ -66,9 +66,8 @@ class DeliveryImporter:
         shipment = frappe.get_doc({
             "doctype": "Shipment",
             "delivery_note": delivery_note_id,
-            "tracking_number": tracking_number,
-            "carrier": carrier,
             "awb_number": tracking_number,
+            "carrier": carrier,
             "shipment_date": getdate(shipping_date),
             "shipment_type": "Goods",  # 发出货物
             "pickup_contact_person": "",
