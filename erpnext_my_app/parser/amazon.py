@@ -53,12 +53,18 @@ class AmazonOrderParser:
                     fieldname="item_code",
                 )
                 item_defaultwarehouse = WAREHOUSE_NAME_DEFAULT
+                rate = 0.0 # 默认单价为0.0
                 if item_code:
                     item = frappe.get_doc("Item", item_code)
                     for default in item.item_defaults:
                         #logger.error(f"AmazonOrderParser: Found item_code: {item_code} for sku: {row.get('sku')} default_warehouse: {default.default_warehouse} company: {default.company}  ")
                         if default.company == COMPANY_NAME_DEFAULT and default.default_warehouse != None:
                             item_defaultwarehouse = default.default_warehouse
+                    rate = frappe.db.get_value(
+                        "Item Price",
+                        {"item_code": item_code, "price_list": "Standard Selling"},
+                        "price_list_rate"
+                    )
                 
                     #logger.error(f"AmazonOrderParser: Found item_code: {item_code} for sku: {row.get('sku')} default_warehouse: {item_defaultwarehouse}")
                     items.append({
@@ -67,7 +73,7 @@ class AmazonOrderParser:
                         "additional_notes": row.get("order-item-id", ""), # 商品 ASIN
                         "description": row.get("order-item-id") or "", # 商品 ASIN
                         "qty": cint(row.get("quantity-purchased", 1)), # 购买数量，转换为整数
-                        "rate": cint(row.get("points-granted", 0)) or 0, # 商品单价，转换为浮点数
+                        "rate": cint(rate), # 商品单价，转换为浮点数
                         "stock_uom": "Nos",
 						"conversion_factor": 1.0,
 						"warehouse": item_defaultwarehouse # 默认仓库
