@@ -55,6 +55,11 @@ class AmazonOrderParser:
                         filters={"item_code": item_code},
                         fieldname="item_name",
                     )
+                    item_defaultwarehouse = frappe.db.get_value(
+                        "Item",
+                        filters={"item_code": item_code},
+                        fieldname="default_warehouse",
+                    )
                     items.append({
                         "item_code": item_code, # 商品代码
                         "item_name": item_name,
@@ -64,7 +69,7 @@ class AmazonOrderParser:
                         "rate": cint(row.get("points-granted", 0)) or 0, # 商品单价，转换为浮点数
                         "stock_uom": "Nos",
 						"conversion_factor": 1.0
-						#"warehouse": WAREHOUSE_DEFAULT, # 默认仓库
+						"warehouse": item_defaultwarehouse, # 默认仓库
                     })
             # 如果没有找到商品，跳过这个订单
             if not items:
