@@ -1,10 +1,6 @@
 import frappe
 import importlib
-
-# 定义几个常量
-COMPANY_NAME_DEFAULT = "龍越商事株式会社"
-WAREHOUSE_NAME_DEFAULT = "龍越仓库 - 龍越商事"
-TERRITORY_DEFAULT = "Japan"
+from erpnext_my_app.parser.utils import *
 
 logger = frappe.logger("erpnext_my_app")
 
@@ -100,8 +96,8 @@ class OrderImporter:
         contact.insert(ignore_if_duplicate=True)
 
         # 遍历商品列表，为其设置仓库
-        for item in items:
-            item["warehouse"] = self.warehouse
+        #for item in items:
+        #    item["warehouse"] = self.warehouse
         # 创建销售订单
         so_data = {
             "doctype": "Sales Order",

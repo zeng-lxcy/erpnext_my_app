@@ -1,0 +1,4 @@
+# 定义几个常量
+COMPANY_NAME_DEFAULT = "龍越商事株式会社"
+WAREHOUSE_NAME_DEFAULT = "龍越仓库 - 龍越商事"
+TERRITORY_DEFAULT = "Japan"

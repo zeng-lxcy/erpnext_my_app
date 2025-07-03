@@ -1,8 +1,11 @@
 import csv
 import frappe
 from io import StringIO
-from frappe.utils import cint, flt, getdate, add_days, nowdate # 假设这些工具函数可用
+from frappe.utils import cint, getdate, add_days, nowdate # 假设这些工具函数可用
 from frappe.utils.file_manager import get_file # 正确的导入路径
+from erpnext_my_app.parser.utils import *
+
+logger = frappe.logger("erpnext_my_app")
 
 class AmazonOrderParser:
     def __init__(self, file_url): # 接受文件URL
@@ -49,20 +52,17 @@ class AmazonOrderParser:
                     filters={"custom_amazon_sku": ["like", f"%{row.get('sku')}%"]},
                     fieldname="item_code",
                 )
+                item_defaultwarehouse = WAREHOUSE_NAME_DEFAULT
                 if item_code:
-                    item_name = frappe.db.get_value(
-                        "Item",
-                        filters={"item_code": item_code},
-                        fieldname="item_name",
-                    )
-                    item_defaultwarehouse = frappe.db.get_value(
-                        "Item",
-                        filters={"item_code": item_code},
-                        fieldname="default_warehouse",
-                    )
+                    item = frappe.get_doc("Item", item_code)
+                    for default in item.item_defaults:
+                        if default.company == COMPANY_NAME_DEFAULT:
+                            item_defaultwarehouse = default.default_warehouse
+                
+                    logger.error(f"AmazonOrderParser: Found item_code: {item_code} for sku: {row.get('sku')} default_warehouse: {item_defaultwarehouse}")
                     items.append({
                         "item_code": item_code, # 商品代码
-                        "item_name": item_name,
+                        "item_name": item.item_name[:140], # 商品名称，截断为140个字符
                         "additional_notes": row.get("order-item-id", ""), # 商品 ASIN
                         "description": row.get("order-item-id") or "", # 商品 ASIN
                         "qty": cint(row.get("quantity-purchased", 1)), # 购买数量，转换为整数
