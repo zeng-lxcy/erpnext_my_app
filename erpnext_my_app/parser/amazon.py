@@ -68,8 +68,8 @@ class AmazonOrderParser:
                         "qty": cint(row.get("quantity-purchased", 1)), # 购买数量，转换为整数
                         "rate": cint(row.get("points-granted", 0)) or 0, # 商品单价，转换为浮点数
                         "stock_uom": "Nos",
-						"conversion_factor": 1.0
-						"warehouse": item_defaultwarehouse, # 默认仓库
+						"conversion_factor": 1.0,
+						"warehouse": item_defaultwarehouse # 默认仓库
                     })
             # 如果没有找到商品，跳过这个订单
             if not items:
