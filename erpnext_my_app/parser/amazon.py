@@ -60,7 +60,7 @@ class AmazonOrderParser:
                         if default.company == COMPANY_NAME_DEFAULT and default.default_warehouse != None:
                             item_defaultwarehouse = default.default_warehouse
                 
-                    logger.error(f"AmazonOrderParser: Found item_code: {item_code} for sku: {row.get('sku')} default_warehouse: {item_defaultwarehouse}")
+                    #logger.error(f"AmazonOrderParser: Found item_code: {item_code} for sku: {row.get('sku')} default_warehouse: {item_defaultwarehouse}")
                     items.append({
                         "item_code": item_code, # 商品代码
                         "item_name": item.item_name[:140], # 商品名称，截断为140个字符
