@@ -11,7 +11,8 @@ logger = frappe.logger("erpnext_my_app")
 class OrderImporter:
     def __init__(self, platform: str):
 		# 根据仓库名称查找仓库
-        self.warehouse = warehouse = frappe.get_doc("Warehouse", WAREHOUSE_NAME_DEFAULT)
+        #self.warehouse = frappe.get_doc("Warehouse", WAREHOUSE_NAME_DEFAULT)
+        self.warehouse = WAREHOUSE_NAME_DEFAULT
         self.platform = platform
         logger.error(f"OrderImporter initialized for platform: {self.platform} with warehouse: {self.warehouse}")
 
