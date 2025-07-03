@@ -3,7 +3,7 @@ import importlib
 
 # 定义几个常量
 COMPANY_NAME_DEFAULT = "龍越商事株式会社"
-WAREHOUSE_NAME_DEFAULT = "线上天瞳"
+WAREHOUSE_NAME_DEFAULT = "龍越仓库 - 龍越商事"
 TERRITORY_DEFAULT = "Japan"
 
 logger = frappe.logger("erpnext_my_app")
@@ -11,7 +11,7 @@ logger = frappe.logger("erpnext_my_app")
 class OrderImporter:
     def __init__(self, platform: str):
 		# 根据仓库名称查找仓库
-        self.warehouse = frappe.get_value("Warehouse", {"warehouse_name": WAREHOUSE_NAME_DEFAULT}, "name")
+        self.warehouse = warehouse = frappe.get_doc("Warehouse", WAREHOUSE_NAME_DEFAULT)
         self.platform = platform
         logger.error(f"OrderImporter initialized for platform: {self.platform} with warehouse: {self.warehouse}")
 
