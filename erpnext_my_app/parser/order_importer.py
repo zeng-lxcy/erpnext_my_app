@@ -111,8 +111,8 @@ class OrderImporter:
             "customer_address": shipping_address.name,
 			"shipping_address": shipping_address.name,
             "contact_person": contact.name,
-			"currency": "JPY",
-			"set_warehouse": self.warehouse
+			"currency": "JPY"
+			#"set_warehouse": self.warehouse
         }
         so = frappe.get_doc(so_data)
         so.insert()

@@ -56,8 +56,8 @@ class AmazonOrderParser:
                 if item_code:
                     item = frappe.get_doc("Item", item_code)
                     for default in item.item_defaults:
-                        logger.error(f"AmazonOrderParser: Found item_code: {item_code} for sku: {row.get('sku')} default_warehouse: {default.default_warehouse} company: {default.company}  ")
-                        if default.company == COMPANY_NAME_DEFAULT:
+                        #logger.error(f"AmazonOrderParser: Found item_code: {item_code} for sku: {row.get('sku')} default_warehouse: {default.default_warehouse} company: {default.company}  ")
+                        if default.company == COMPANY_NAME_DEFAULT and default.default_warehouse != None:
                             item_defaultwarehouse = default.default_warehouse
                 
                     logger.error(f"AmazonOrderParser: Found item_code: {item_code} for sku: {row.get('sku')} default_warehouse: {item_defaultwarehouse}")
