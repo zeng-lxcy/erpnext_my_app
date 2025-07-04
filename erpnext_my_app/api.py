@@ -65,12 +65,22 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
 
     for so_id in sale_order_ids:
         so = frappe.get_doc("Sales Order", so_id)
-        dn_names = frappe.get_all(
+        parent_names = frappe.get_all(
             "Delivery Note Item",
             filters={"against_sales_order": so_id},
             pluck="parent",
             distinct=True
         )
+        # 第二步：只保留已提交状态的 Delivery Note
+        dn_names = frappe.get_all(
+            "Delivery Note",
+            filters={
+                "docstatus": 1,
+                "name": ["in", parent_names]
+            },
+            pluck="name"
+        )
+        
         if not dn_names:
             logger.error(f"export_delivery_notes_to_csv: No Delivery Notes found for Sales Order {so_id}.")
             errors.append(f"销售订单没有关联的发货单: {so_id}<br>")
@@ -194,18 +204,27 @@ def export_shipment_to_csv_task(sale_order_ids, platform: str = "amazon", user: 
                 continue
 
             # 1. 找出关联该销售订单的第一条出货单（一个销售订单可能对应多条销售出货，所以只取一条）
-            delivery_note_item = frappe.get_all(
+            parent_names = frappe.get_all(
                 "Delivery Note Item",
                 filters={"against_sales_order": so_id},
                 fields=["parent"],
                 distinct=True
             )
-            if not delivery_note_item:
+            # 第二步：只保留已提交状态的 Delivery Note
+            dn_names = frappe.get_all(
+                "Delivery Note",
+                filters={
+                    "docstatus": 1,
+                    "name": ["in", parent_names]
+                },
+                pluck="name"
+            )
+            if not dn_names:
                 logger.error(f"export_shipment_to_csv: Delivery Note Item for Sales Order {so_id} not found.")
                 errors.append(f"销售订单没有关联的出货单: {so_id}<br>")
                 continue  # 如果没有找到出货单，跳过
 
-            delivery_note_id = delivery_note_item[0]["parent"]
+            delivery_note_id = dn_names[0]  # 取第一条出货单
             # 2. 查找该出货单对应的装运单（一个销售出货可能对应多条装运单，所以只取一条）
             shipment_links = frappe.get_all(
                 "Shipment Delivery Note",
