@@ -73,12 +73,12 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
         if not dn_names:
             logger.error(f"export_delivery_notes_to_csv: No Delivery Notes found for Sales Order {so_id}.")
             errors.append(f"销售订单没有关联的发货单: {so_id}<br>")
-            
+
         for dn_name in dn_names:
             dn = frappe.get_doc("Delivery Note", dn_name)
             # 忽略未提交的发货单
             if dn.docstatus != 1:
-                errors.append(f"忽略销售订单未提交：{dn_name}<br>")
+                errors.append(f"忽略非提交状态的出货单：{dn_name}<br>")
                 continue
             #for field, value in dn.as_dict().items():
             #    print(f"{field}: {value}")
@@ -92,15 +92,19 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             company = frappe.get_doc("Company", so.company)
             amazon_order_id = so.amazon_order_id or ""
 
+            # 获取商品名称和数量
             for item in dn.get("items", []):
-                writer.writerow([
-                    dn.name, amazon_order_id,
-                    customer_name, customer_phone, contact, shipping_address.get_formatted("phone") or "0896-22-4988",
-                    shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
-                    item.item_name, item.qty,
-                    company.get_formatted("company_name"), "0896-22-4988",
-                    "津根2840", "四国中央市", "爱媛县", "799-0721"
-                ])
+                item_names = item_names + " " + item.item_name
+                item_counts = item_counts  + item.qty
+            
+            writer.writerow([
+                dn.name, amazon_order_id,
+                customer_name, customer_phone, contact, shipping_address.get_formatted("phone") or "0896-22-4988",
+                shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
+                item_names, item_counts,
+                company.get_formatted("company_name"), "0896-22-4988",
+                "津根2840", "四国中央市", "爱媛县", "799-0721"
+            ])
 
     # 保存为 Frappe 文件
     filename = "delivery_export.csv"
