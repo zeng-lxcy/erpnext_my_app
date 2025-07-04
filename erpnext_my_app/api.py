@@ -70,6 +70,10 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             filters={"against_sales_order": so_id},
             pluck="parent"
         )
+        if not dn_names:
+            logger.error(f"export_delivery_notes_to_csv: No Delivery Notes found for Sales Order {so_id}.")
+            errors.append(f"销售订单没有关联的发货单: {so_id}<br>")
+            
         for dn_name in dn_names:
             dn = frappe.get_doc("Delivery Note", dn_name)
             # 忽略未提交的发货单
