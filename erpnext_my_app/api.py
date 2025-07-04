@@ -93,6 +93,8 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             amazon_order_id = so.amazon_order_id or ""
 
             # 获取商品名称和数量
+            item_names = ""
+            item_counts = 0
             for item in dn.get("items", []):
                 item_names = item_names + " " + item.item_name
                 item_counts = item_counts  + item.qty
