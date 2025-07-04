@@ -49,11 +49,11 @@ class OrderImporter:
 
         if existing_so:
             logger.error(f"Amazon order: {order_id} already exists.")
-            self.errors.append(f"Amazon order: {order_id} already exists.")
+            self.errors.append(f"电商订单已经导入：{order_id}<br>")
             return None
         if len(items) <= 0:
             logger.error(f"Amazon order: {order_id} has no items to create Sales Order.")
-            self.errors.append(f"Amazon order: {order_id} has no items to create Sales Order.")
+            self.errors.append(f"电商订单中的商品在系统中找不到: {order_id} <br>")
             return None
 		
         # 创建客户
