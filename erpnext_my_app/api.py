@@ -3,47 +3,22 @@ import frappe
 from io import StringIO
 import json
 from frappe import _
+from frappe.utils.background_jobs import enqueue
 from frappe.utils.file_manager import save_file
+from erpnext_my_app.parser.utils import *
 from erpnext_my_app.parser.order_importer import OrderImporter
 from erpnext_my_app.parser.delivery_importer import DeliveryImporter
 
 logger = frappe.logger("erpnext_my_app")
 
-def get_carrier_code(carrier):
-    carrier_map = {
-        "yamato": "YAMATO",
-        "sagawa": "SAGAWA",
-        "upack": "JapanPost",
-        "other": "Other",
-        "fedex": "FedEx",
-        "dhl": "DHL",
-        "ups": "UPS",
-        "amazon": "Amazon"
-    }
-
-    return carrier_map.get(carrier, "unknown")
-
-def get_shipment_method(carrier):
-    carrier_map = {
-        "yamato": "ヤマト運輸",
-        "sagawa": "佐川急便",
-        "upack": "日本郵便",
-        "other": "セイノースーパーエクスプレス",
-        "fedex": "FedEx",
-        "dhl": "DHL",
-        "ups": "UPS",
-        "amazon": "Amazon配送"
-    }
-
-    return carrier_map.get(carrier, "unknown")
 
 
 @frappe.whitelist()
 def hello():
     return {"message": "Hello, World!"}
 
-@frappe.whitelist()
-def import_orders(file_url: str, platform: str = "amazon"):
+#@frappe.whitelist()
+def import_orders_task(file_url: str, platform: str = "amazon"):
     #logger.error("调用import_orders with file_url: %s and platform: %s", file_url, platform)
 
     importer = OrderImporter(platform)
@@ -51,10 +26,34 @@ def import_orders(file_url: str, platform: str = "amazon"):
     result = {
             "status": "success",
             "platform": platform,
+            "order_count": len(importer.orders_count),
             "imported_count": len(orders)
     }
+
+    # 主动通知客户端
+    frappe.publish_realtime(
+        event='import_orders_completed',
+        message={'result': result},
+        user=frappe.session.user
+    )
     #logger.error(f"Imported {len(orders)} orders from {platform} platform.")
-    return result
+    #return result
+
+
+@frappe.whitelist()
+def import_orders(file_url: str, platform: str = "amazon"):
+    logger.error(f"Importing orders from file_url: {file_url} for platform: {platform}")
+    user = frappe.session.user
+    enqueue(
+        method=import_orders_task,
+        queue='default',
+        timeout=600,
+        file_url=file_url,
+        platform=platform,
+        user=user
+    )
+    logger.error(f"Import orders task queued for user: {user} with file_url: {file_url} and platform: {platform}")
+    return {"status": "queued"}
 
 @frappe.whitelist()
 def export_delivery_notes_to_csv(sale_order_ids, carrier: str = "upack"):
