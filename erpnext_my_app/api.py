@@ -16,7 +16,6 @@ logger = frappe.logger("erpnext_my_app")
 def hello():
     return {"message": "Hello, World!"}
 
-#@frappe.whitelist()
 def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Administrator"):
     logger = frappe.logger("erpnext_my_app")
     importer = OrderImporter(platform)
@@ -35,30 +34,15 @@ def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Adm
         message={'result': result},
         user=user
     )
-    #logger.error(f"Imported {len(orders)} orders from {importer.orders_count} order_count.")
-    #return result
 
-
-@frappe.whitelist()
-def import_orders(file_url: str, platform: str = "amazon"):
-    user = frappe.session.user
-    enqueue(
-        method=import_orders_task,
-        queue='default',
-        timeout=600,
-        file_url=file_url,
-        platform=platform,
-        user=user
-    )
-    #logger.error(f"Import orders task queued for user: {user} with file_url: {file_url} and platform: {platform}")
-    return {"status": "queued"}
-
-@frappe.whitelist()
-def export_delivery_notes_to_csv(sale_order_ids, carrier: str = "upack"):
+def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", user: str = "Administrator"):
     """
     sale_order_ids: 逗号分隔的 Sales Order ID 字符串
     """
 
+    errors = []
+    count = 0
+    logger = frappe.logger("erpnext_my_app")
     #logger.info(f"Calling export_delivery_notes_to_csv with sale_order_ids: {sale_order_ids}")
 
     if isinstance(sale_order_ids, str):
@@ -90,10 +74,12 @@ def export_delivery_notes_to_csv(sale_order_ids, carrier: str = "upack"):
             dn = frappe.get_doc("Delivery Note", dn_name)
             # 忽略未提交的发货单
             if dn.docstatus != 1:
+                errors.append(f"忽略销售订单未提交：{dn_name}<br>")
                 continue
             #for field, value in dn.as_dict().items():
             #    print(f"{field}: {value}")
 
+            count += 1
             customer_name = frappe.db.get_value("Customer", dn.customer, "customer_name") or ""
             customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
             contact = frappe.db.get_value("Contact", dn.contact_person, "first_name") or customer_name
@@ -122,30 +108,48 @@ def export_delivery_notes_to_csv(sale_order_ids, carrier: str = "upack"):
     file_doc = save_file(filename, file_content.encode("utf-8"), None, "", is_private=0)
     result = {
             "status": "success",
+            "order_count": len(sale_order_ids),
+            "imported_count": count,
+            "carrier": carrier,
             "file_url": file_doc.file_url,
+            "errors": errors
     }
-    #logger.info(f"Exported delivery notes to {file_doc.file_url}")
-    return result
 
-@frappe.whitelist()
-def import_shipments_from_file(file_url: str, carrier: str = "upack"):
+    # 主动通知客户端
+    frappe.publish_realtime(
+        event='export_delivery_completed',
+        message={'result': result},
+        user=user
+    )
+
+def import_shipments_from_file_task(file_url: str, carrier: str = "upack", user: str = "Administrator"):
+    logger = frappe.logger("erpnext_my_app")
     importer = DeliveryImporter(carrier)
     orders = importer.import_orders(file_url)
     result = {
-            "status": "success",
+            "status": len(importer.errors) > 0 and "error" or "success",
+            "errors": importer.errors,
             "carrier": carrier,
+            "order_count": importer.orders_count,
             "imported_count": len(orders)
     }
-    #logger.error(f"Imported {len(orders)} orders from {carrier} carrier.")
-    return result
 
-@frappe.whitelist()
-def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
+    # 主动通知客户端
+    frappe.publish_realtime(
+        event='import_shipments_completed',
+        message={'result': result},
+        user=user
+    )
+
+def export_shipment_to_csv_task(sale_order_ids, platform: str = "amazon", user: str = "Administrator"):
     """
     sale_order_ids: 逗号分隔的 Sales Order ID 字符串
     """
-
+    logger = frappe.logger("erpnext_my_app")
     #logger.info(f"Calling export_shipment_to_csv with sale_order_ids: {sale_order_ids}")
+
+    errors = []
+    count = 0
 
     if isinstance(sale_order_ids, str):
         try:
@@ -168,8 +172,13 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
 
         for so_id in sale_order_ids:
             so = frappe.get_doc("Sales Order", so_id)
-            if not so or len(so.items) == 0:
-                logger.error(f"export_shipment_to_csv: Sales Order {so_id} not found or has no items.")
+            if not so:
+                logger.error(f"export_shipment_to_csv: Sales Order {so_id} not found.")
+                errors.append(f"销售订单未找到: {so_id}<br>")
+                continue
+            if len(so.items) <= 0:
+                logger.error(f"export_shipment_to_csv: Sales Order {so_id} has no items.")
+                errors.append(f"销售订单没有商品: {so_id}<br>")
                 continue
 
             # 1. 找出关联该销售订单的第一条出货单（一个销售订单可能对应多条销售出货，所以只取一条）
@@ -182,6 +191,7 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
             )
             if not delivery_note_item:
                 logger.error(f"export_shipment_to_csv: Delivery Note Item for Sales Order {so_id} not found.")
+                errors.append(f"销售订单没有关联的出货单: {so_id}<br>")
                 continue  # 如果没有找到出货单，跳过
 
             delivery_note_id = delivery_note_item[0]["parent"]
@@ -194,6 +204,7 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
             )
             if not shipment_links:
                 logger.error(f"export_shipment_to_csv: Shipment link for Delivery Note {delivery_note_id} not found for Sales Order {so_id}.")
+                errors.append(f"出货单没有关联的装运单: {delivery_note_id} [销售订单： {so_id}]<br>")
                 continue  # 如果没有找到出货单，跳过
 
             shipment_id = shipment_links[0]["parent"]
@@ -201,9 +212,11 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
             shipment_doc = frappe.get_doc("Shipment", shipment_id)
             if not shipment_doc:
                 logger.error(f"export_shipment_to_csv: Shipment document {shipment_id} not found for Sales Order {so_id}.") 
+                errors.append(f"装运单文档未找到: {shipment_id} [销售订单： {so_id}， 出货单： {delivery_note_id}]<br>")
                 continue  # 如果没有找到装运单，跳过
             
             # 4. 将装运单信息输出到文件中
+            count += 1
             writer.writerow([
                 so.amazon_order_id or "",  # 亚马逊订单号
                 so.items[0].additional_notes,  # 商品 ASIN
@@ -226,8 +239,71 @@ def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
     #file_doc = save_file(filename, file_content.encode("utf-8"), None, "", is_private=0)
     result = {
             "status": "success",
+            "order_count": len(sale_order_ids),
+            "imported_count": count,
+            "platform": platform,
             "file_url": file_doc.file_url,
+            "errors": errors
     }
-    #logger.info(f"Exported delivery notes to {file_doc.file_url}")
-    return result
+
+    # 主动通知客户端
+    frappe.publish_realtime(
+        event='export_shipments_completed',
+        message={'result': result},
+        user=user
+    )
+
+
+@frappe.whitelist()
+def import_orders(file_url: str, platform: str = "amazon"):
+    user = frappe.session.user
+    enqueue(
+        method=import_orders_task,
+        queue='default',
+        timeout=600,
+        file_url=file_url,
+        platform=platform,
+        user=user
+    )
+    #logger.error(f"Import orders task queued for user: {user} with file_url: {file_url} and platform: {platform}")
+    return {"status": "queued"}
+
+@frappe.whitelist()
+def export_delivery_notes_to_csv(sale_order_ids, carrier: str = "upack"):
+    user = frappe.session.user
+    enqueue(
+        method=export_delivery_notes_to_csv_task,
+        queue='default',
+        timeout=600,
+        sale_order_ids=sale_order_ids,
+        carrier=carrier,
+        user=user
+    )
+    return {"status": "queued"}
+
+@frappe.whitelist()
+def import_shipments_from_file(file_url: str, carrier: str = "upack"):
+    user = frappe.session.user
+    enqueue(
+        method=import_shipments_from_file_task,
+        queue='default',
+        timeout=600,
+        file_url=file_url,
+        carrier=carrier,
+        user=user
+    )
+    return {"status": "queued"}
+
+@frappe.whitelist()
+def export_shipment_to_csv(sale_order_ids, platform: str = "amazon"):
+    user = frappe.session.user
+    enqueue(
+        method=export_shipment_to_csv_task,
+        queue='default',
+        timeout=600,
+        sale_order_ids=sale_order_ids,
+        platform=platform,
+        user=user
+    )
+    return {"status": "queued"}
 

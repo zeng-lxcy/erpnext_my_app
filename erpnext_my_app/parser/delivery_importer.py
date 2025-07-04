@@ -7,6 +7,8 @@ logger = frappe.logger("erpnext_my_app")
 class DeliveryImporter:
     def __init__(self, carrier: str):
         self.carrier = carrier
+        self.errors = []
+        self.orders_count = 0
 
     def import_orders(self, file_url: str):
         # 根据快递公司创建对应的快递单解析器
@@ -16,6 +18,7 @@ class DeliveryImporter:
         parser_class = getattr(parser_module, parser_class_name)
         parser = parser_class(file_url)
         orders = parser.parse()
+        self.orders_count = len(orders)
 
         #logger.error(f"DeliveryImporter: Delivery parser has done: {len(orders)} records found.")
 
@@ -39,6 +42,7 @@ class DeliveryImporter:
         # 检查发货单是否存在
         if not dn:
             logger.error(f"DeliveryImporter: Delivery Note {delivery_note_id} not found.")
+            self.errors.append(f"发货单不存在： {delivery_note_id}<br>")
             return None
 
         order_id = dn.items[0].against_sales_order if dn.items else None
@@ -56,6 +60,7 @@ class DeliveryImporter:
         })
         if existing_shipment:
             logger.error(f"DeliveryImporter: Shipment for Delivery Note {delivery_note_id} already exists.")
+            self.errors.append(f"发货单对应的装运单已经存在：{delivery_note_id}<br>")
             return None
 
         # 估算总价值（简单求和）
@@ -95,6 +100,7 @@ class DeliveryImporter:
             item = frappe.get_doc("Item", i.item_code)
             if not item:
                 logger.error(f"DeliveryImporter: Item {i.item_name} not found.")
+                self.errors.append(f"出货单的商品没有找到： {i.item_name}[出货单: {delivery_note_id}]<br>")
                 continue
             shipment.append("shipment_parcel", {
                     "description": item.item_name,

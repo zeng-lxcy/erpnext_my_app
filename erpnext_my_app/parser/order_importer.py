@@ -11,6 +11,7 @@ class OrderImporter:
         self.warehouse = WAREHOUSE_NAME_DEFAULT
         self.platform = platform
         self.errors = []
+		self.orders_count = 0
         logger.error(f"OrderImporter initialized for platform: {self.platform} with warehouse: {self.warehouse}")
 
     def import_orders(self, file_url: str):
