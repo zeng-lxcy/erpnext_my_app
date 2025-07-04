@@ -198,8 +198,7 @@ def export_shipment_to_csv_task(sale_order_ids, platform: str = "amazon", user: 
                 "Delivery Note Item",
                 filters={"against_sales_order": so_id},
                 fields=["parent"],
-                order_by="creation asc",
-                limit=1
+                distinct=True
             )
             if not delivery_note_item:
                 logger.error(f"export_shipment_to_csv: Delivery Note Item for Sales Order {so_id} not found.")
