@@ -18,7 +18,7 @@ def hello():
     return {"message": "Hello, World!"}
 
 #@frappe.whitelist()
-def import_orders_task(file_url: str, platform: str = "amazon"):
+def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Administrator"):
     #logger.error("调用import_orders with file_url: %s and platform: %s", file_url, platform)
 
     importer = OrderImporter(platform)
@@ -34,7 +34,7 @@ def import_orders_task(file_url: str, platform: str = "amazon"):
     frappe.publish_realtime(
         event='import_orders_completed',
         message={'result': result},
-        user=frappe.session.user
+        user=user
     )
     #logger.error(f"Imported {len(orders)} orders from {platform} platform.")
     #return result
@@ -42,7 +42,6 @@ def import_orders_task(file_url: str, platform: str = "amazon"):
 
 @frappe.whitelist()
 def import_orders(file_url: str, platform: str = "amazon"):
-    logger.error(f"Importing orders from file_url: {file_url} for platform: {platform}")
     user = frappe.session.user
     enqueue(
         method=import_orders_task,
@@ -52,7 +51,7 @@ def import_orders(file_url: str, platform: str = "amazon"):
         platform=platform,
         user=user
     )
-    logger.error(f"Import orders task queued for user: {user} with file_url: {file_url} and platform: {platform}")
+    #logger.error(f"Import orders task queued for user: {user} with file_url: {file_url} and platform: {platform}")
     return {"status": "queued"}
 
 @frappe.whitelist()
