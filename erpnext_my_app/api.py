@@ -26,10 +26,10 @@ def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Adm
     result = {
             "status": "success",
             "platform": platform,
-            "order_count": len(importer.orders_count),
+            "order_count": importer.orders_count,
             "imported_count": len(orders)
     }
-    logger.error(f"Imported {len(orders)} orders from {len(importer.orders_count)} order_count.")
+    logger.error(f"Imported {len(orders)} orders from {importer.orders_count} order_count.")
 
     # 主动通知客户端
     frappe.publish_realtime(
