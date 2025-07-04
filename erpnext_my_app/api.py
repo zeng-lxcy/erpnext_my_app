@@ -19,7 +19,7 @@ def hello():
 
 #@frappe.whitelist()
 def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Administrator"):
-    #logger.error("调用import_orders with file_url: %s and platform: %s", file_url, platform)
+    logger.error("调用import_orders with file_url: %s and platform: %s", file_url, platform)
 
     importer = OrderImporter(platform)
     orders = importer.import_orders(file_url)
@@ -29,6 +29,7 @@ def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Adm
             "order_count": len(importer.orders_count),
             "imported_count": len(orders)
     }
+    logger.error(f"Imported {len(orders)} orders from {len(importer.orders_count)} order_count.")
 
     # 主动通知客户端
     frappe.publish_realtime(
