@@ -22,12 +22,12 @@ def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Adm
     importer = OrderImporter(platform)
     orders = importer.import_orders(file_url)
     result = {
-            "status": "success",
+            "status": len(importer.errors) > 0 and "error" or "success",
+            "errors": importer.errors,
             "platform": platform,
             "order_count": importer.orders_count,
             "imported_count": len(orders)
     }
-    logger.error(f"Imported {len(orders)} orders from {importer.orders_count} order_count.")
 
     # 主动通知客户端
     frappe.publish_realtime(
@@ -35,7 +35,7 @@ def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Adm
         message={'result': result},
         user=user
     )
-    #logger.error(f"Imported {len(orders)} orders from {platform} platform.")
+    #logger.error(f"Imported {len(orders)} orders from {importer.orders_count} order_count.")
     #return result
 
 

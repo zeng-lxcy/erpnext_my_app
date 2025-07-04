@@ -10,6 +10,7 @@ class OrderImporter:
         #self.warehouse = frappe.get_doc("Warehouse", WAREHOUSE_NAME_DEFAULT)
         self.warehouse = WAREHOUSE_NAME_DEFAULT
         self.platform = platform
+        self.errors = []
         logger.error(f"OrderImporter initialized for platform: {self.platform} with warehouse: {self.warehouse}")
 
     def import_orders(self, file_url: str):
@@ -46,8 +47,13 @@ class OrderImporter:
             "docstatus": 1
         })
 
-        if existing_so or len(items) <= 0:
-            logger.error(f"Amazon order: {order_id} already exists. [Order ID:{existing_so}] or no items[{len(items)}] found.")
+        if existing_so:
+            logger.error(f"Amazon order: {order_id} already exists.")
+            self.errors.append(f"Amazon order: {order_id} already exists.")
+            return None
+        if len(items) <= 0:
+            logger.error(f"Amazon order: {order_id} has no items to create Sales Order.")
+            self.errors.append(f"Amazon order: {order_id} has no items to create Sales Order.")
             return None
 		
         # 创建客户
