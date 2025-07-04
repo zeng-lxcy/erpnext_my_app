@@ -19,8 +19,6 @@ def hello():
 #@frappe.whitelist()
 def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Administrator"):
     logger = frappe.logger("erpnext_my_app")
-    logger.error("调用import_orders with file_url: %s and platform: %s", file_url, platform)
-
     importer = OrderImporter(platform)
     orders = importer.import_orders(file_url)
     result = {
