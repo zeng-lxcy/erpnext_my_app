@@ -76,7 +76,8 @@ class AmazonOrderParser:
                         "rate": cint(rate), # 商品单价，转换为浮点数
                         "stock_uom": "Nos",
 						"conversion_factor": 1.0,
-						"warehouse": item_defaultwarehouse # 默认仓库
+						"warehouse": WAREHOUSE_NAME_DEFAULT # 默认仓库
+						#"warehouse": item_defaultwarehouse # 默认仓库
                     })
             # 如果没有找到商品，跳过这个订单
             if not items:
