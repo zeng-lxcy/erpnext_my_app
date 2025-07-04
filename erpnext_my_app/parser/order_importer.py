@@ -20,6 +20,7 @@ class OrderImporter:
         parser_class = getattr(parser_module, parser_class_name)
         parser = parser_class(file_url)
         orders = parser.parse()
+        self.orders_count = len(orders)
 
         #logger.error(f"orders parser has done: {len(orders)} orders found.")
 		
