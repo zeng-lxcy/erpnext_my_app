@@ -59,9 +59,9 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
         writer.writerow([
             "荷受人コード", "電話番号",
             "住所１", "住所２", "住所３", "名前１", "名前２", "郵便番号", "特殊計", 
-            "荷送人コード","荷送担当者",
-            "個数", "才数", "重量", "輸送商品１", "輸送商品２", "品名記事１", "品名記事２", "品名記事３",
-            "配達指定日", "お客様管理番号", "元着区分", "保険金額", "出荷日付", "登録日付", "", "", "", "", ""
+            "着店コード", "荷送人コード","荷送担当者",
+            "個数", "才数", "重量", "輸送商品１", "輸送商品２", "品名記事１", "品名記事２", "品名記事３", "品名記事４", "品名記事５", "品名記事６",
+            "配達指定日", "お客様管理番号", "元払区分", "保険金額", "出荷日付", "登録日付"
         ])
     else:
         writer = csv.writer(output)
@@ -125,10 +125,10 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             if carrier == "fukutsu":
                 writer.writerow([
                     "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
-                    shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), "", 
-                    "1896224988", "",
-                    item_counts, "", "", item_names, "輸送商品２", dn.name, amazon_order_id, "品名記事３",
-                    "", "お客様管理番号", "元着区分", "保険金額", so.delivery_date, "", "", "", "", "", ""
+                    shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), 0, 
+                    "", "1896224988", "",
+                    item_counts, "", "", item_names, "", dn.name, amazon_order_id, "", "", "", "",
+                    "", "", 1, 0, so.delivery_date.replace("-", ""), frappe.utils.nowdate().replace("-", "")
                 ])
             else:
                 writer.writerow([
@@ -148,7 +148,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
 
     file_doc = None
     if carrier == "fukutsu":
-        file_doc = save_file(filename, file_content.encode("shift_jis", errors="replace"), None, "", is_private=0)
+        file_doc = save_file(filename, file_content.encode("shift_jis"), None, "", is_private=0)
     else:
         # 使用 UTF-8 编码保存文件
         # 由于 CSV 文件可能包含非 ASCII 字符，建议使用 UTF-8 编码
