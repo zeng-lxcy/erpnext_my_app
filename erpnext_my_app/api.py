@@ -3,6 +3,7 @@ import frappe
 from io import StringIO
 import json
 from frappe import _
+from frappe.utils import nowdate
 from frappe.utils.background_jobs import enqueue
 from frappe.utils.file_manager import save_file
 from erpnext_my_app.parser.utils import *
@@ -118,11 +119,17 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             # 获取商品名称和数量
             item_names = ""
             item_counts = 0
+            item_names_list = []
             for item in dn.get("items", []):
+                item_names_list.append(item.item_name)
                 item_names = item_names + " " + item.item_name
                 item_counts = item_counts  + item.qty
+            if len(item_names_list) < 6:
+                item_names_list.extend([""] * (6 - len(item_names_list)))  # 填充到 6 个空位
+            item_names_list[4] = dn.name  # 将发货单名称放在第五个位置
+            item_names_list[5] = amazon_order_id  # 将亚马逊订单号放在第六个位置
             
-            now = frappe.utils.nowdate().strftime("%Y%m%d")
+            now = nowdate().replace("-", "") 
             delivery_date = so.delivery_date.strftime("%Y%m%d")
             delivery_date = delivery_date if delivery_date >= now else now  # 确保交货日期不早于今天
             if carrier == "fukutsu":
@@ -130,7 +137,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
                     "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
                     shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), 0, 
                     "", "1896224988", "",
-                    int(item_counts), "", "", "", "", item_names, dn.name, amazon_order_id, "", "", "",
+                    int(item_counts), "", "", "", "", item_names_list[0], item_names_list[1], item_names_list[2], item_names_list[3], item_names_list[4], item_names_list[5],
                     "", "", "", 1, 0, int(delivery_date), ""
                 ])
             else:
