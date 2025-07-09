@@ -35,7 +35,7 @@ class FukutsuParser:
         reader = csv.DictReader(StringIO(self.content), delimiter=',')
         raw_orders = {}
         for row in reader:
-            order_id = row.get("品名記事１").lstrip("'")
+            order_id = row.get("品名記事５").lstrip("'")
             if not order_id:
                 logger.error("FukutsuParser: Missing order-id in row, skipping.")
                 continue # 如果没有 order-id，跳过这一行
@@ -49,7 +49,7 @@ class FukutsuParser:
             first_row = rows[0]
             order = {
                 "delivery_note_id": order_id,   #销售出货ID
-                "amazon_order_id": first_row.get("品名記事２", "").lstrip("'"), # 亚马逊订单ID
+                "amazon_order_id": first_row.get("品名記事６", "").lstrip("'"), # 亚马逊订单ID
                 "tracking_no": first_row.get("送り状番号", ""), # 追踪号码
                 "carrier": "fukutsu", # 物流公司
                 "shipping_date": getdate(first_row.get("出荷日", nowdate())) # 发货日期
