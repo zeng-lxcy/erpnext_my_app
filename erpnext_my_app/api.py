@@ -55,7 +55,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
     output = StringIO()
     writer = None
     if carrier == "fukutsu":
-        writer = csv.writer(output, quoting=csv.QUOTE_ALL, encoding="shift_jis", errors="replace")
+        writer = csv.writer(output, quoting=csv.QUOTE_ALL)
         writer.writerow([
             "荷受人コード", "電話番号",
             "住所１", "住所２", "住所３", "名前１", "名前２", "郵便番号", "特殊計", 
