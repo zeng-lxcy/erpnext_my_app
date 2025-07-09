@@ -54,14 +54,23 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
 
     output = StringIO()
     writer = csv.writer(output)
-    writer.writerow([
-        "发货ID", "亚马逊订单号",
-        "客户名称", "客户电话", "收货人名称", "收货人电话",
-        "收货地址明细", "收货城市", "收货省份", "收货邮编",
-        "商品名称", "商品数量",
-        "发货名称", "发货电话",
-        "发货地址明细", "发货城市", "发货省份", "发货邮编"
-    ])
+    if carrier == "fukutsu":
+        writer.writerow([
+            "荷受人コード", "電話番号",
+            "住所１", "住所２", "住所３", "名前１", "名前２", "郵便番号", "特殊計", 
+            "荷送人コード",
+            "個数", "才数", "重量", "輸送商品１", "輸送商品２", "品名記事１", "品名記事２", "品名記事３",
+            "配達指定日", "お客樣管理番号", "元着区分", "保険金額", "出荷日付", "登録日付"
+        ])
+    else:
+        writer.writerow([
+            "发货ID", "亚马逊订单号",
+            "客户名称", "客户电话", "收货人名称", "收货人电话",
+            "收货地址明细", "收货城市", "收货省份", "收货邮编",
+            "商品名称", "商品数量",
+            "发货名称", "发货电话",
+            "发货地址明细", "发货城市", "发货省份", "发货邮编"
+        ])
 
     for so_id in sale_order_ids:
         so = frappe.get_doc("Sales Order", so_id)
@@ -111,14 +120,23 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
                 item_names = item_names + " " + item.item_name
                 item_counts = item_counts  + item.qty
             
-            writer.writerow([
-                dn.name, amazon_order_id,
-                customer_name, customer_phone, contact, shipping_address.get_formatted("phone") or "0896-22-4988",
-                shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
-                item_names, item_counts,
-                company.get_formatted("company_name"), "0896-22-4988",
-                "津根2840", "四国中央市", "爱媛县", "799-0721"
-            ])
+            if carrier == "fukutsu":
+                writer.writerow([
+                    "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
+                    shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), "", 
+                    "'1896224988",
+                    item_counts, "才数", "重量", item_names, "輸送商品２", dn.name, amazon_order_id, "品名記事３",
+                    "", "お客樣管理番号", "元着区分", "保険金額", so.delivery_date, ""
+                ])
+            else:
+                writer.writerow([
+                    dn.name, amazon_order_id,
+                    customer_name, customer_phone, contact, shipping_address.get_formatted("phone") or "0896-22-4988",
+                    shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
+                    item_names, item_counts,
+                    company.get_formatted("company_name"), "0896-22-4988",
+                    "津根2840", "四国中央市", "爱媛县", "799-0721"
+                ])
 
     # 保存为 Frappe 文件
     filename = "delivery_export.csv"
