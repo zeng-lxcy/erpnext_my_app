@@ -128,7 +128,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
                     shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), 0, 
                     "", "1896224988", "",
                     item_counts, "", "", item_names, "", dn.name, amazon_order_id, "", "", "", "",
-                    "", "", 1, 0, so.delivery_date.replace("-", ""), frappe.utils.nowdate().replace("-", "")
+                    "", "", 1, 0, so.delivery_date.strftime("%Y%m%d"), ""
                 ])
             else:
                 writer.writerow([
