@@ -53,8 +53,9 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             sale_order_ids = sale_order_ids.strip("[]").replace('"', '').split(",")  # 保底 fallback
 
     output = StringIO()
-    writer = csv.writer(output)
+    writer = None
     if carrier == "fukutsu":
+        writer = csv.writer(output, quoting=csv.QUOTE_ALL, encoding="shift_jis", errors="replace")
         writer.writerow([
             "荷受人コード", "電話番号",
             "住所１", "住所２", "住所３", "名前１", "名前２", "郵便番号", "特殊計", 
@@ -63,6 +64,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             "配達指定日", "お客樣管理番号", "元着区分", "保険金額", "出荷日付", "登録日付"
         ])
     else:
+        writer = csv.writer(output)
         writer.writerow([
             "发货ID", "亚马逊订单号",
             "客户名称", "客户电话", "收货人名称", "收货人电话",
@@ -125,7 +127,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
                     "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
                     shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), "", 
                     "'1896224988",
-                    item_counts, "才数", "重量", item_names, "輸送商品２", dn.name, amazon_order_id, "品名記事３",
+                    item_counts, "", "", item_names, "輸送商品２", dn.name, amazon_order_id, "品名記事３",
                     "", "お客樣管理番号", "元着区分", "保険金額", so.delivery_date, ""
                 ])
             else:
@@ -144,8 +146,16 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
     #print(file_content)  # 读取并解码为字符串打印
     output.close()
 
-    #file_doc = save_file(filename, file_content.encode("shift_jis", errors="replace"), None, "", is_private=0)
-    file_doc = save_file(filename, file_content.encode("utf-8"), None, "", is_private=0)
+    file_doc = None
+    if carrier == "fukutsu":
+        file_doc = save_file(filename, file_content.encode("shift_jis", errors="replace"), None, "", is_private=0)
+    else:
+        # 使用 UTF-8 编码保存文件
+        # 由于 CSV 文件可能包含非 ASCII 字符，建议使用 UTF-8 编码
+        # 但如果需要兼容某些系统，可以使用 shift_jis 编码
+        # 这里暂时使用 shift_jis 编码，后续可以根据实际需求调整
+        # 例如：file_doc = save_file(filename, file_content.encode("utf-8"), None, "", is_private=0)
+        file_doc = save_file(filename, file_content.encode("utf-8"), None, "", is_private=0)
     result = {
             "status": "success",
             "order_count": len(sale_order_ids),
