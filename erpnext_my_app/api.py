@@ -122,13 +122,16 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
                 item_names = item_names + " " + item.item_name
                 item_counts = item_counts  + item.qty
             
+            now = frappe.utils.nowdate().strftime("%Y%m%d")
+            delivery_date = so.delivery_date.strftime("%Y%m%d")
+            delivery_date = delivery_date if delivery_date >= now else now  # 确保交货日期不早于今天
             if carrier == "fukutsu":
                 writer.writerow([
                     "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
                     shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), 0, 
                     "", "1896224988", "",
                     int(item_counts), "", "", "", "", item_names, dn.name, amazon_order_id, "", "", "",
-                    "", "", "", 1, 0, int(so.delivery_date.strftime("%Y%m%d")), ""
+                    "", "", "", 1, 0, int(delivery_date), ""
                 ])
             else:
                 writer.writerow([
