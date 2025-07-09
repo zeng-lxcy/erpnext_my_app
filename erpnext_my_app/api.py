@@ -131,7 +131,8 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             
             now = nowdate().replace("-", "") 
             delivery_date = so.delivery_date.strftime("%Y%m%d")
-            delivery_date = delivery_date if delivery_date >= now else now  # 确保交货日期不早于今天
+            #delivery_date = delivery_date if delivery_date >= now else now  # 确保交货日期不早于今天
+            delivery_date = now
             if carrier == "fukutsu":
                 writer.writerow([
                     "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
