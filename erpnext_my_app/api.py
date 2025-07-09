@@ -59,9 +59,9 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
         writer.writerow([
             "荷受人コード", "電話番号",
             "住所１", "住所２", "住所３", "名前１", "名前２", "郵便番号", "特殊計", 
-            "荷送人コード",
+            "荷送人コード","荷送担当者",
             "個数", "才数", "重量", "輸送商品１", "輸送商品２", "品名記事１", "品名記事２", "品名記事３",
-            "配達指定日", "お客樣管理番号", "元着区分", "保険金額", "出荷日付", "登録日付"
+            "配達指定日", "お客様管理番号", "元着区分", "保険金額", "出荷日付", "登録日付", "", "", "", "", ""
         ])
     else:
         writer = csv.writer(output)
@@ -126,9 +126,9 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
                 writer.writerow([
                     "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
                     shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), "", 
-                    "'1896224988",
+                    "1896224988", "",
                     item_counts, "", "", item_names, "輸送商品２", dn.name, amazon_order_id, "品名記事３",
-                    "", "お客樣管理番号", "元着区分", "保険金額", so.delivery_date, ""
+                    "", "お客様管理番号", "元着区分", "保険金額", so.delivery_date, "", "", "", "", "", ""
                 ])
             else:
                 writer.writerow([
