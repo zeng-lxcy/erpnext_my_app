@@ -127,7 +127,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
                     "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
                     shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), 0, 
                     "", "1896224988", "",
-                    int(item_counts), "", "", item_names, "", dn.name, amazon_order_id, "", "", "", "",
+                    int(item_counts), "", "", "", "", item_names, dn.name, amazon_order_id, "", "", "",
                     "", "", "", 1, 0, so.delivery_date.strftime("%Y%m%d"), ""
                 ])
             else:
@@ -148,7 +148,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
 
     file_doc = None
     if carrier == "fukutsu":
-        file_doc = save_file(filename, file_content.encode("shift_jis"), None, "", is_private=0)
+        file_doc = save_file(filename, file_content.encode("cp932", errors="replace"), None, "", is_private=0)
     else:
         # 使用 UTF-8 编码保存文件
         # 由于 CSV 文件可能包含非 ASCII 字符，建议使用 UTF-8 编码
