@@ -41,6 +41,10 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
     sale_order_ids: 逗号分隔的 Sales Order ID 字符串
     """
 
+    def safe_date_field(doc, fieldname):
+        val = doc.get(fieldname)
+        return val.strftime("%Y%m%d") if val else ""
+
     errors = []
     count = 0
     logger = frappe.logger("erpnext_my_app")
@@ -131,7 +135,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             
             now = nowdate().replace("-", "") 
             delivery_date = so.delivery_date.strftime("%Y%m%d")
-            my_delivery_date = so.my_delivery_date.strftime("%Y%m%d") if so.my_delivery_date else ""
+            my_delivery_date = safe_date_field(so, "my_delivery_date")  # 获取自定义的交货日期字段
             #delivery_date = delivery_date if delivery_date >= now else now  # 确保交货日期不早于今天
             delivery_date = now
             if carrier == "fukutsu":
