@@ -122,6 +122,10 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             company = frappe.get_doc("Company", so.company)
             amazon_order_id = so.amazon_order_id or ""
 
+            # 如果是线下客户群组的订单，则联系人不填 
+            if so.customer_group == "线下":
+                contact = ""
+                
             # 获取商品名称和数量
             item_names = ""
             item_counts = 0
