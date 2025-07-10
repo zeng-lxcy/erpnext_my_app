@@ -92,6 +92,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             "Delivery Note",
             filters={
                 "docstatus": 1,
+                "is_return": 0,  # ✅ 排除退货
                 "name": ["in", parent_names]
             },
             pluck="name"
@@ -259,6 +260,7 @@ def export_shipment_to_csv_task(sale_order_ids, platform: str = "amazon", user: 
                 "Delivery Note",
                 filters={
                     "docstatus": 1,
+                    "is_return": 0,  # ✅ 排除退货
                     "name": ["in", parent_names]
                 },
                 pluck="name"
