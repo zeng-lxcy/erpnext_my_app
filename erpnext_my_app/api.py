@@ -106,10 +106,10 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
             continue
 
         
+        count = 0
         item_names = ""
         item_counts = 0
         item_names_list = []
-        count = 0
         customer_name = ""
         customer_phone = ""
         contact = ""
@@ -123,6 +123,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
         #delivery_date = delivery_date if delivery_date >= now else now  # 确保交货日期不早于今天
         delivery_date = now
         
+        count += 1
         if dn_names:
             for dn_name in dn_names:
                 dn = frappe.get_doc("Delivery Note", dn_name)
@@ -133,7 +134,6 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
                 #for field, value in dn.as_dict().items():
                 #    print(f"{field}: {value}")
 
-                count += 1
                 customer_name = frappe.db.get_value("Customer", dn.customer, "customer_name") or ""
                 customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
                 contact = frappe.db.get_value("Contact", dn.contact_person, "first_name") or customer_name
