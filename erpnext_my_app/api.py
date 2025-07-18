@@ -36,7 +36,7 @@ def import_orders_task(file_url: str, platform: str = "amazon", user: str = "Adm
         user=user
     )
 
-def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", user: str = "Administrator"):
+def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ignore_pending_orders: bool = True, user: str = "Administrator"):
     """
     sale_order_ids: 逗号分隔的 Sales Order ID 字符串
     """
@@ -76,7 +76,8 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             "收货地址明细", "收货城市", "收货省份", "收货邮编",
             "商品名称", "商品数量",
             "发货名称", "发货电话",
-            "发货地址明细", "发货城市", "发货省份", "发货邮编"
+            "发货地址明细", "发货城市", "发货省份", "发货邮编",
+            "指定配送日期", "指定配送时间"
         ])
 
     for so_id in sale_order_ids:
@@ -99,68 +100,103 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", us
             pluck="name"
         )
         
-        if not dn_names:
+        if not dn_names and ignore_pending_orders:
             logger.error(f"export_delivery_notes_to_csv: No Delivery Notes found for Sales Order {so_id}.")
             errors.append(f"销售订单没有关联的发货单: {so_id}<br>")
             continue
 
-        for dn_name in dn_names:
-            dn = frappe.get_doc("Delivery Note", dn_name)
-            # 忽略未提交的发货单
-            if dn.docstatus != 1:
-                errors.append(f"忽略非提交状态的出货单：{dn_name}<br>")
-                continue
-            #for field, value in dn.as_dict().items():
-            #    print(f"{field}: {value}")
+        
+        item_names = ""
+        item_counts = 0
+        item_names_list = []
+        count = 0
+        customer_name = ""
+        customer_phone = ""
+        contact = ""
+        shipping_address_name = so.shipping_address_name or so.customer_address
+        shipping_address = frappe.get_doc("Address", shipping_address_name)
+        company = frappe.get_doc("Company", so.company)
+        amazon_order_id = so.amazon_order_id or ""
+        now = nowdate().replace("-", "") 
+        delivery_date = so.delivery_date.strftime("%Y%m%d")
+        my_delivery_date = safe_date_field(so, "my_delivery_date")  # 获取自定义的交货日期字段
+        #delivery_date = delivery_date if delivery_date >= now else now  # 确保交货日期不早于今天
+        delivery_date = now
+        
+        if dn_names:
+            for dn_name in dn_names:
+                dn = frappe.get_doc("Delivery Note", dn_name)
+                # 忽略未提交的发货单
+                if dn.docstatus != 1:
+                    errors.append(f"忽略非提交状态的出货单：{dn_name}<br>")
+                    continue
+                #for field, value in dn.as_dict().items():
+                #    print(f"{field}: {value}")
 
-            count += 1
-            customer_name = frappe.db.get_value("Customer", dn.customer, "customer_name") or ""
-            customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
-            contact = frappe.db.get_value("Contact", dn.contact_person, "first_name") or customer_name
-            shipping_address_name = so.shipping_address_name or so.customer_address
-            shipping_address = frappe.get_doc("Address", shipping_address_name)
-            company = frappe.get_doc("Company", so.company)
-            amazon_order_id = so.amazon_order_id or ""
+                count += 1
+                customer_name = frappe.db.get_value("Customer", dn.customer, "customer_name") or ""
+                customer_phone = frappe.db.get_value("Customer", dn.customer, "mobile_no") or ""
+                contact = frappe.db.get_value("Contact", dn.contact_person, "first_name") or customer_name
+
+
+                # 如果是线下客户群组的订单，则联系人不填 
+                if so.customer_group == "线下":
+                    contact = ""
+                    
+                # 获取商品名称和数量
+                item_names = ""
+                item_counts = 0
+                item_names_list = []
+                for item in dn.get("items", []):
+                    item_names_list.append(item.item_name)
+                    item_names = item_names + " " + item.item_name
+                    item_counts = item_counts  + item.qty
+                if len(item_names_list) < 6:
+                    item_names_list.extend([""] * (6 - len(item_names_list)))  # 填充到 6 个空位
+                item_names_list[4] = dn.name  # 将发货单名称放在第五个位置
+                item_names_list[5] = amazon_order_id  # 将亚马逊订单号放在第六个位置
+
+        else:
+            # 如果没有找到发货单，则将订单中的所有商品作为一个包裹来打印面单
+            customer_name = frappe.db.get_value("Customer", so.customer, "customer_name") or ""
+            customer_phone = frappe.db.get_value("Customer", so.customer, "mobile_no") or ""
+            contact = frappe.db.get_value("Contact", so.contact_person, "first_name") or customer_name
 
             # 如果是线下客户群组的订单，则联系人不填 
             if so.customer_group == "线下":
                 contact = ""
-                
+
             # 获取商品名称和数量
             item_names = ""
             item_counts = 0
             item_names_list = []
-            for item in dn.get("items", []):
+            for item in so.items:
                 item_names_list.append(item.item_name)
                 item_names = item_names + " " + item.item_name
                 item_counts = item_counts  + item.qty
             if len(item_names_list) < 6:
                 item_names_list.extend([""] * (6 - len(item_names_list)))  # 填充到 6 个空位
-            item_names_list[4] = dn.name  # 将发货单名称放在第五个位置
-            item_names_list[5] = amazon_order_id  # 将亚马逊订单号放在第六个位置
-            
-            now = nowdate().replace("-", "") 
-            delivery_date = so.delivery_date.strftime("%Y%m%d")
-            my_delivery_date = safe_date_field(so, "my_delivery_date")  # 获取自定义的交货日期字段
-            #delivery_date = delivery_date if delivery_date >= now else now  # 确保交货日期不早于今天
-            delivery_date = now
-            if carrier == "fukutsu":
-                writer.writerow([
-                    "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
-                    shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), 0, 
-                    "", "1896224988", "",
-                    int(item_counts), "", "", "", "", item_names_list[0], item_names_list[1], item_names_list[2], item_names_list[3], item_names_list[4], item_names_list[5],
-                    my_delivery_date, "", "", 1, 0, int(delivery_date), ""
-                ])
-            else:
-                writer.writerow([
-                    dn.name, amazon_order_id,
-                    customer_name, customer_phone, contact, shipping_address.get_formatted("phone") or "0896-22-4988",
-                    shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
-                    item_names, int(item_counts),
-                    company.get_formatted("company_name"), "0896-22-4988",
-                    "津根2840", "四国中央市", "爱媛县", "799-0721"
-                ])
+                item_names_list[4] = dn.name  # 将发货单名称放在第五个位置
+                item_names_list[5] = amazon_order_id  # 将亚马逊订单号放在第六个位置
+
+        if carrier == "fukutsu":
+            writer.writerow([
+                "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
+                shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), 0, 
+                "", "1896224988", "",
+                int(item_counts), "", "", "", "", item_names_list[0], item_names_list[1], item_names_list[2], item_names_list[3], item_names_list[4], item_names_list[5],
+                my_delivery_date, "", "", 1, 0, int(delivery_date), ""
+            ])
+        else:
+            writer.writerow([
+                dn.name, amazon_order_id,
+                customer_name, customer_phone, contact, shipping_address.get_formatted("phone") or "0896-22-4988",
+                shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
+                item_names, int(item_counts),
+                company.get_formatted("company_name"), "0896-22-4988",
+                "津根2840", "四国中央市", "爱媛县", "799-0721",
+                my_delivery_date, ""
+            ])
 
     # 保存为 Frappe 文件
     filename = "delivery_export.csv"
@@ -351,7 +387,7 @@ def import_orders(file_url: str, platform: str = "amazon"):
     return {"status": "queued"}
 
 @frappe.whitelist()
-def export_delivery_notes_to_csv(sale_order_ids, carrier: str = "upack"):
+def export_delivery_notes_to_csv(sale_order_ids, carrier: str = "upack", ignore_pending_orders: bool = True):
     user = frappe.session.user
     enqueue(
         method=export_delivery_notes_to_csv_task,
@@ -359,6 +395,7 @@ def export_delivery_notes_to_csv(sale_order_ids, carrier: str = "upack"):
         timeout=600,
         sale_order_ids=sale_order_ids,
         carrier=carrier,
+        ignore_pending_orders=ignore_pending_orders,
         user=user
     )
     return {"status": "queued"}
