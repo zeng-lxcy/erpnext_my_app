@@ -106,7 +106,6 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
             continue
 
         
-        count = 0
         item_names = ""
         item_counts = 0
         item_names_list = []
