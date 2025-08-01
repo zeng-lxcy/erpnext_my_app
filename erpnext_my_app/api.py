@@ -152,6 +152,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
                     item_counts = item_counts  + item.qty
                 if len(item_names_list) < 6:
                     item_names_list.extend([""] * (6 - len(item_names_list)))  # 填充到 6 个空位
+                item_names_list[3] = "われもの注意"
                 item_names_list[4] = dn.name  # 将发货单名称放在第五个位置
                 item_names_list[5] = amazon_order_id  # 将亚马逊订单号放在第六个位置
 
