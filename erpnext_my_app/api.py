@@ -161,7 +161,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
                         "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
                         shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), 0, 
                         "", "1896224988", "",
-                        int(item_counts), "", "", "", "", item_names_list[0], item_names_list[1], item_names_list[2], item_names_list[3], item_names_list[4], item_names_list[5],
+                        1, "", "", "", "", item_names_list[0], item_names_list[1], item_names_list[2], item_names_list[3], item_names_list[4], item_names_list[5],
                         my_delivery_date, "", "", 1, 0, int(delivery_date), ""
                     ])
                 else:
@@ -202,7 +202,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
                     "", shipping_address.get_formatted("phone") or customer_phone or "0896-22-4988",
                     shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), customer_name, contact, shipping_address.get_formatted("pincode"), 0, 
                     "", "1896224988", "",
-                    int(item_counts), "", "", "", "", item_names_list[0], item_names_list[1], item_names_list[2], item_names_list[3], item_names_list[4], item_names_list[5],
+                    1, "", "", "", "", item_names_list[0], item_names_list[1], item_names_list[2], item_names_list[3], item_names_list[4], item_names_list[5],
                     my_delivery_date, "", "", 1, 0, int(delivery_date), ""
                 ])
             else:
