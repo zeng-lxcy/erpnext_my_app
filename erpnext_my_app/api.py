@@ -148,7 +148,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
                 item_names_list = []
                 for item in dn.get("items", []):
                     item_names_list.append(item.item_name)
-                    item_names = item_names + " " + item.item_name
+                    item_names = item_names + " " + item.item_name + "*" + str(item.qty)
                     item_counts = item_counts  + item.qty
                 if len(item_names_list) < 6:
                     item_names_list.extend([""] * (6 - len(item_names_list)))  # 填充到 6 个空位
@@ -191,7 +191,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
             item_names_list = []
             for item in so.items:
                 item_names_list.append(item.item_name)
-                item_names = item_names + " " + item.item_name
+                item_names = item_names + " " + item.item_name + "*" + str(item.qty)
                 item_counts = item_counts  + item.qty
             if len(item_names_list) < 6:
                 item_names_list.extend([""] * (6 - len(item_names_list)))  # 填充到 6 个空位
