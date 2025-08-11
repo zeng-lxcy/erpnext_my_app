@@ -171,7 +171,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
                         shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
                         item_names, int(item_counts),
                         company.get_formatted("company_name"), "0896-22-4988",
-                        "土居町津根2840", "四国中央市", "爱媛県", "799-0721",
+                        "土居町津根2840", "四国中央市", "爱媛県", "799-0704",
                         my_delivery_date, ""
                     ])
 
@@ -212,7 +212,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
                     shipping_address.get_formatted("address_line1"), shipping_address.get_formatted("city"), shipping_address.get_formatted("state"), shipping_address.get_formatted("pincode"),
                     item_names, int(item_counts),
                     company.get_formatted("company_name"), "0896-22-4988",
-                    "土居町津根2840", "四国中央市", "爱媛県", "799-0721",
+                    "土居町津根2840", "四国中央市", "爱媛県", "799-0704",
                     my_delivery_date, ""
                 ])
 
