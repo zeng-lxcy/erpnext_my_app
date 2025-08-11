@@ -147,7 +147,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
                 item_counts = 0
                 item_names_list = []
                 for item in dn.get("items", []):
-                    item_names_list.append(item.item_name)
+                    item_names_list.append(item.item_name + "*" + str(item.qty))
                     item_names = item_names + " " + item.item_name + "*" + str(item.qty)
                     item_counts = item_counts  + item.qty
                 if len(item_names_list) < 6:
@@ -190,7 +190,7 @@ def export_delivery_notes_to_csv_task(sale_order_ids, carrier: str = "upack", ig
             item_counts = 0
             item_names_list = []
             for item in so.items:
-                item_names_list.append(item.item_name)
+                item_names_list.append(item.item_name + "*" + str(item.qty))
                 item_names = item_names + " " + item.item_name + "*" + str(item.qty)
                 item_counts = item_counts  + item.qty
             if len(item_names_list) < 6:
